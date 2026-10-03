@@ -1,4 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <rect width="64" height="64" rx="12" fill="#09090b"/>
-  <text x="32" y="43" font-family="ui-sans-serif, system-ui, -apple-system, Geist, sans-serif" font-size="26" font-weight="700" fill="#a3e635" text-anchor="middle" letter-spacing="-1">MP</text>
+  <text
+    x="32"
+    y="43"
+    font-family="ui-sans-serif, system-ui, -apple-system, Geist, sans-serif"
+    font-size="26"
+    font-weight="700"
+    fill="#a3e635"
+    text-anchor="middle"
+    letter-spacing="-1"
+  >PC</text>
 </svg>
