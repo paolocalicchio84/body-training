@@ -28,12 +28,11 @@ export function SignIn() {
       <div className="w-full max-w-sm space-y-8">
         <div>
           <h1 className="font-mono text-2xl font-semibold tracking-tight">
-            PaoloCalicchio
-            <br />
-            <span className="text-primary">Body Trainer</span>
+            MyHealthy
+            <span className="text-primary">Life</span>
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Accedi al tuo body trainer personale.
+            Accedi al tuo companion benessere.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

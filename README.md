@@ -1,11 +1,11 @@
-# PaoloCalicchio - Body Trainer
+# MyHealthyLife
 
 Fork personale di Paolo: https://github.com/paolocalicchio84/body-training  
 Upstream originale: https://github.com/daniele-pisciottano/maddaniello-physiquee
 
 Live: https://pc-personaltrainer.netlify.app
 
-Companion body trainer personale — PWA web-only.
+Companion benessere personale — PWA web-only.
 
 **Stack**: React 18 + Vite + TypeScript · Tailwind · Supabase (Auth/Postgres/pgvector) · Netlify Functions · OpenAI/Gemini (user-provided keys).
 

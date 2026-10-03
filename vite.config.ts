@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'pwa-192.png', 'pwa-512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'PaoloCalicchio - Body Trainer',
-        short_name: 'PC Trainer',
-        description: 'Body trainer personale di Paolo Calicchio',
+        name: 'MyHealthyLife',
+        short_name: 'MyHealthyLife',
+        description: 'Companion benessere personale',
         lang: 'it',
         theme_color: '#09090b',
         background_color: '#09090b',
