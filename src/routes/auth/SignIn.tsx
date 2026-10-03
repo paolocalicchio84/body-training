@@ -28,12 +28,12 @@ export function SignIn() {
       <div className="w-full max-w-sm space-y-8">
         <div>
           <h1 className="font-mono text-2xl font-semibold tracking-tight">
-            Maddaniello's
+            PaoloCalicchio
             <br />
-            <span className="text-primary">Physique</span>
+            <span className="text-primary">Body Trainer</span>
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Accedi al tuo companion nutrizionale.
+            Accedi al tuo body trainer personale.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">

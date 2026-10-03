@@ -20,7 +20,7 @@ export function Topbar() {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="font-mono text-sm font-semibold">Physique</span>
+          <span className="font-mono text-sm font-semibold">Body Trainer</span>
         </div>
         <div className="flex-1" />
         <div className="flex items-center gap-3">

@@ -43,7 +43,7 @@ export function MobileMenu({ open, onOpenChange }: Props) {
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle className="font-mono text-sm font-semibold">
-            Maddaniello's <span className="text-primary">Physique</span>
+            PaoloCalicchio <span className="text-primary">Body Trainer</span>
           </DialogTitle>
         </DialogHeader>
         <nav className="grid grid-cols-2 gap-2">

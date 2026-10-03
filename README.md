@@ -1,6 +1,11 @@
-# Maddaniello's Physique
+# PaoloCalicchio - Body Trainer
 
-Companion nutrizionale AI personale — PWA web-only.
+Fork personale di Paolo: https://github.com/paolocalicchio84/body-training  
+Upstream originale: https://github.com/daniele-pisciottano/maddaniello-physiquee
+
+Live: https://pc-personaltrainer.netlify.app
+
+Companion body trainer personale — PWA web-only.
 
 **Stack**: React 18 + Vite + TypeScript · Tailwind · Supabase (Auth/Postgres/pgvector) · Netlify Functions · OpenAI/Gemini (user-provided keys).
 

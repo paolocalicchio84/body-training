@@ -10,9 +10,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
       manifest: {
-        name: "Maddaniello's Physique",
-        short_name: 'Physique',
-        description: 'Companion nutrizionale AI personale',
+        name: 'PaoloCalicchio - Body Trainer',
+        short_name: 'Body Trainer',
+        description: 'Body trainer personale di Paolo Calicchio',
         lang: 'it',
         theme_color: '#09090b',
         background_color: '#09090b',
