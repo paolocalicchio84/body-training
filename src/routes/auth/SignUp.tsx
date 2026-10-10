@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/AuthProvider'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { clearItalianValidity, setItalianValidity } from '@/lib/form-validity-it'
 
 export function SignUp() {
   const { signUp } = useAuth()
@@ -40,28 +41,38 @@ export function SignUp() {
           </h1>
           <p className="mt-3 text-sm text-muted-foreground">Crea il tuo account.</p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" lang="it">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
+              name="email"
               type="email"
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                clearItalianValidity(e.currentTarget)
+              }}
+              onInvalid={(e) => setItalianValidity(e.currentTarget)}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
+              name="password"
               type="password"
               autoComplete="new-password"
               required
               minLength={6}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                clearItalianValidity(e.currentTarget)
+              }}
+              onInvalid={(e) => setItalianValidity(e.currentTarget)}
             />
             <p className="text-xs text-muted-foreground">Minimo 6 caratteri.</p>
           </div>

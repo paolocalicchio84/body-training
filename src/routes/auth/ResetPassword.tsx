@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/AuthProvider'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { clearItalianValidity, setItalianValidity } from '@/lib/form-validity-it'
 
 export function ResetPassword() {
   const { session, updatePassword } = useAuth()
@@ -62,29 +63,39 @@ export function ResetPassword() {
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" lang="it">
             <div className="space-y-2">
               <Label htmlFor="password">Nuova password</Label>
               <Input
                 id="password"
+                name="password"
                 type="password"
                 autoComplete="new-password"
                 required
                 minLength={8}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  clearItalianValidity(e.currentTarget)
+                }}
+                onInvalid={(e) => setItalianValidity(e.currentTarget)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm">Conferma password</Label>
               <Input
                 id="confirm"
+                name="confirm"
                 type="password"
                 autoComplete="new-password"
                 required
                 minLength={8}
                 value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
+                onChange={(e) => {
+                  setConfirm(e.target.value)
+                  clearItalianValidity(e.currentTarget)
+                }}
+                onInvalid={(e) => setItalianValidity(e.currentTarget)}
               />
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}

@@ -1,9 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
+import { clearItalianValidity, setItalianValidity } from '@/lib/form-validity-it'
 
 export function SignIn() {
   const { signIn, resetPasswordForEmail } = useAuth()
@@ -14,6 +15,8 @@ export function SignIn() {
   const [info, setInfo] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [resetMode, setResetMode] = useState(false)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -50,16 +53,22 @@ export function SignIn() {
               : 'Accedi al tuo companion benessere.'}
           </p>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" lang="it">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
+              ref={emailRef}
               id="email"
+              name="email"
               type="email"
               autoComplete="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                clearItalianValidity(e.currentTarget)
+              }}
+              onInvalid={(e) => setItalianValidity(e.currentTarget)}
             />
           </div>
           {!resetMode && (
@@ -79,12 +88,18 @@ export function SignIn() {
                 </button>
               </div>
               <Input
+                ref={passwordRef}
                 id="password"
+                name="password"
                 type="password"
                 autoComplete="current-password"
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value)
+                  clearItalianValidity(e.currentTarget)
+                }}
+                onInvalid={(e) => setItalianValidity(e.currentTarget)}
               />
             </div>
           )}
