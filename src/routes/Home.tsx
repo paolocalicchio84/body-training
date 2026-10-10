@@ -267,7 +267,7 @@ export function Home() {
             </div>
             <div className="min-w-0 flex-1">
               <h3 className="text-sm font-semibold text-warning">
-                Review: l'AI suggerisce un aggiustamento
+                Revisione: l'AI suggerisce un aggiustamento
               </h3>
               <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
                 {reviewStatus.latest.ai_suggestion?.summary}
@@ -291,11 +291,11 @@ export function Home() {
                 <BarChart3 className="h-4 w-4 text-primary" />
               </div>
               <div className="min-w-0 flex-1">
-                <h3 className="text-sm font-semibold">Review bisettimanale</h3>
+                <h3 className="text-sm font-semibold">Revisione bisettimanale</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {reviewStatus.latest
-                    ? `Ultima review ${reviewStatus.daysSinceLatest} giorni fa. Genera la prossima.`
-                    : 'Non hai mai generato una review. Dopo 14 giorni di tracking è il momento giusto.'}
+                    ? `Ultima revisione ${reviewStatus.daysSinceLatest} giorni fa. Genera la prossima.`
+                    : 'Non hai mai generato una revisione. Dopo 14 giorni di tracking è il momento giusto.'}
                 </p>
               </div>
               <Button asChild size="sm" variant="outline">

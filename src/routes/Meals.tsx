@@ -23,6 +23,7 @@ import {
 import { useProfile } from '@/features/profile/useProfile'
 import { MEAL_TYPE_LABELS, round0, round1 } from '@/lib/macro'
 import { SectionHelp } from '@/components/tutorial/SectionHelp'
+import { GeminiSetupBanner } from '@/components/ai/GeminiSetupBanner'
 
 function toLocalDateStr(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
@@ -77,6 +78,8 @@ export function Meals() {
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
+      <GeminiSetupBanner />
+
       {/* Header con navigazione data */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>

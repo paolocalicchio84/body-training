@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { SignIn } from './routes/auth/SignIn'
 import { SignUp } from './routes/auth/SignUp'
+import { ResetPassword } from './routes/auth/ResetPassword'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { AppShell } from './components/layout/AppShell'
 import { importWithReload } from './lib/lazy'
@@ -89,6 +90,7 @@ export function App() {
     <Routes>
       <Route path="/auth/signin" element={<SignIn />} />
       <Route path="/auth/signup" element={<SignUp />} />
+      <Route path="/auth/reset-password" element={<ResetPassword />} />
       <Route
         element={
           <ProtectedRoute>

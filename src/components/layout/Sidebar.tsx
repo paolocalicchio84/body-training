@@ -22,7 +22,7 @@ const items = [
   { to: '/chat', icon: MessageCircle, label: 'Chat AI', disabled: false },
   { to: '/andamento', icon: LineChart, label: 'Andamento', disabled: false },
   { to: '/progresso', icon: Camera, label: 'Progresso', disabled: false },
-  { to: '/reviews', icon: BarChart3, label: 'Review', disabled: false },
+  { to: '/reviews', icon: BarChart3, label: 'Revisione', disabled: false },
   { to: '/settings', icon: Settings, label: 'Impostazioni', disabled: false },
 ]
 
@@ -31,8 +31,7 @@ export function Sidebar() {
     <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:flex md:flex-col">
       <div className="border-b border-border px-6 py-5">
         <h1 className="font-mono text-sm font-semibold leading-tight tracking-tight">
-          MyHealthy
-          <span className="text-primary">Life</span>
+          MyHealthy<span className="text-primary">Life</span>
         </h1>
       </div>
       <nav className="flex-1 space-y-1 p-3">

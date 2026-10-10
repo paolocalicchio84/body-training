@@ -68,12 +68,13 @@ export function AiSection() {
   const geminiCred = credentials.find((c) => c.provider === 'gemini')
 
   return (
-    <Card>
+    <Card id="ai-settings">
       <CardHeader>
         <CardTitle>AI & modelli</CardTitle>
         <CardDescription>
-          Configura le API key (cifrate a riposo con AES-256-GCM lato server).
-          Scegli il provider attivo e il tetto di spesa mensile.
+          Consigliato: Gemini. Incolla la key → Testa → modello flash → Salva →
+          imposta Provider attivo = Gemini. Le API key sono cifrate a riposo
+          (AES-256-GCM lato server).
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -96,11 +97,11 @@ export function AiSection() {
                 />
               </SelectTrigger>
               <SelectContent>
+                {configuredProviders.includes('gemini') && (
+                  <SelectItem value="gemini">Gemini (consigliato)</SelectItem>
+                )}
                 {configuredProviders.includes('openai') && (
                   <SelectItem value="openai">OpenAI</SelectItem>
-                )}
-                {configuredProviders.includes('gemini') && (
-                  <SelectItem value="gemini">Gemini</SelectItem>
                 )}
               </SelectContent>
             </Select>
@@ -136,10 +137,14 @@ export function AiSection() {
 
         <Separator />
 
-        {/* Provider cards */}
+        {/* Provider cards — Gemini first (preferred) */}
         <div className="grid gap-4 lg:grid-cols-2">
+          <AiProviderCard
+            provider="gemini"
+            credential={geminiCred}
+            recommended
+          />
           <AiProviderCard provider="openai" credential={openaiCred} />
-          <AiProviderCard provider="gemini" credential={geminiCred} />
         </div>
 
         <p className="text-xs text-muted-foreground">

@@ -37,9 +37,11 @@ const LABELS: Record<Provider, { name: string; hint: string; keyHint: string }> 
 export function AiProviderCard({
   provider,
   credential,
+  recommended = false,
 }: {
   provider: Provider
   credential: AiCredential | undefined
+  recommended?: boolean
 }) {
   const labels = LABELS[provider]
   const isConfigured = !!credential
@@ -117,10 +119,23 @@ export function AiProviderCard({
   const isBusy = listModels.isPending || saveKey.isPending || deleteKey.isPending
 
   return (
-    <div className="rounded-lg border border-border bg-background/40 p-4">
+    <div
+      className={
+        recommended
+          ? 'rounded-lg border border-primary/40 bg-primary/5 p-4'
+          : 'rounded-lg border border-border bg-background/40 p-4'
+      }
+    >
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h4 className="font-semibold">{labels.name}</h4>
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="font-semibold">{labels.name}</h4>
+            {recommended && (
+              <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-widest text-primary">
+                Consigliato: Gemini
+              </span>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground">{labels.hint}</p>
         </div>
         <StatusBadge configured={isConfigured} />

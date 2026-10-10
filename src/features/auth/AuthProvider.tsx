@@ -15,9 +15,16 @@ type AuthContextValue = {
   signIn: (email: string, password: string) => Promise<{ error?: string }>
   signUp: (email: string, password: string) => Promise<{ error?: string }>
   signOut: () => Promise<void>
+  resetPasswordForEmail: (email: string) => Promise<{ error?: string }>
+  updatePassword: (password: string) => Promise<{ error?: string }>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+function resetRedirectTo(): string {
+  if (typeof window === 'undefined') return 'https://pc-personaltrainer.netlify.app/auth/reset-password'
+  return `${window.location.origin}/auth/reset-password`
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
@@ -48,6 +55,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
   }
 
+  const resetPasswordForEmail: AuthContextValue['resetPasswordForEmail'] =
+    async (email) => {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: resetRedirectTo(),
+      })
+      return { error: error?.message }
+    }
+
+  const updatePassword: AuthContextValue['updatePassword'] = async (
+    password,
+  ) => {
+    const { error } = await supabase.auth.updateUser({ password })
+    return { error: error?.message }
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -57,6 +79,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signUp,
         signOut,
+        resetPasswordForEmail,
+        updatePassword,
       }}
     >
       {children}

@@ -28,7 +28,7 @@ const items = [
   { to: '/chat', icon: MessageCircle, label: 'Chat AI' },
   { to: '/andamento', icon: LineChart, label: 'Andamento' },
   { to: '/progresso', icon: Camera, label: 'Progresso' },
-  { to: '/reviews', icon: BarChart3, label: 'Review' },
+  { to: '/reviews', icon: BarChart3, label: 'Revisione' },
   { to: '/settings', icon: Settings, label: 'Impostazioni' },
 ]
 

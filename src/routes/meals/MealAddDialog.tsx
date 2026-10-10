@@ -168,7 +168,7 @@ export function MealAddDialog({ open, onOpenChange, defaultMealType }: Props) {
         <div className="grid grid-cols-5 gap-1 rounded-md border border-border bg-background p-1">
           <TabButton icon={Sparkles} label="AI" active={tab === 'ai'} onClick={() => setTab('ai')} accent />
           <TabButton icon={Search} label="Cerca" active={tab === 'search'} onClick={() => setTab('search')} />
-          <TabButton icon={ScanLine} label="Barcode" active={tab === 'barcode'} onClick={() => setTab('barcode')} />
+          <TabButton icon={ScanLine} label="Codice a barre" active={tab === 'barcode'} onClick={() => setTab('barcode')} />
           <TabButton icon={Pencil} label="Rapido" active={tab === 'manual'} onClick={() => setTab('manual')} />
           <TabButton icon={ChefHat} label="Ricetta" active={tab === 'recipe'} onClick={() => setTab('recipe')} />
         </div>

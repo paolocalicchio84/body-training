@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { GuideSection } from './settings/GuideSection'
 import { ProfileSection } from './settings/ProfileSection'
 import { GoalSection } from './settings/GoalSection'
@@ -14,6 +15,17 @@ import { DangerZoneSection } from './settings/DangerZoneSection'
 import { SectionHelp } from '@/components/tutorial/SectionHelp'
 
 export function Settings() {
+  useEffect(() => {
+    if (window.location.hash !== '#ai-settings') return
+    const el = document.getElementById('ai-settings')
+    if (el) {
+      // Wait a tick so lazy layout has painted
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
+  }, [])
+
   return (
     <div className="space-y-8">
       <div>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -11,6 +12,7 @@ import {
   Loader2,
   MessageCircle,
   BookMarked,
+  Dumbbell,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Textarea } from '@/components/ui/Textarea'
@@ -21,28 +23,43 @@ import {
   useSendChatMessage,
   type ChatMessageRow,
 } from '@/features/ai/useChat'
+import {
+  GeminiSetupBanner,
+  useHasActiveAiProvider,
+} from '@/components/ai/GeminiSetupBanner'
+import { useRoutines } from '@/features/workout/useRoutines'
 import { QuickMemoryDialog } from './chat/QuickMemoryDialog'
 import { SectionHelp } from '@/components/tutorial/SectionHelp'
 
-const SUGGESTIONS = [
+const SUGGESTIONS_DEFAULT = [
   'Cosa posso mangiare a cena stasera?',
   'Generami un menu settimanale usando i miei alimenti, target e regole',
   'Come sto andando con i target questa settimana?',
-  'Il mio volume di allenamento è adeguato per il mio obiettivo?',
+  'Valuta la mia scheda attiva: volume e bilanciamento',
   'Perché sono fermo con i carichi sulla panca?',
   'La mia settimana di allenamento è bilanciata?',
+]
+
+const SUGGESTIONS_NO_ROUTINES = [
+  'Cosa posso mangiare a cena stasera?',
+  'Generami un menu settimanale usando i miei alimenti, target e regole',
+  'Come sto andando con i target questa settimana?',
+  'Quali regole alimentari sto rispettando questa settimana?',
 ]
 
 export function Chat() {
   const { data: messages = [], isLoading } = useChatMessages()
   const send = useSendChatMessage()
   const clear = useClearChat()
+  const hasAi = useHasActiveAiProvider()
+  const { data: routines = [] } = useRoutines()
   const [input, setInput] = useState('')
   const [memoryOpen, setMemoryOpen] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
 
   const lastMsg = messages[messages.length - 1]
   const lastUpdatedAt = useMemo(() => lastMsg?.created_at, [lastMsg?.created_at])
+  const hasRoutines = routines.length > 0
 
   // Auto-scroll bottom on new message
   useEffect(() => {
@@ -55,6 +72,10 @@ export function Chat() {
   async function handleSend(text?: string) {
     const content = (text ?? input).trim()
     if (!content || send.isPending) return
+    if (hasAi === false) {
+      toast.error('Configura Gemini in Impostazioni prima di chattare')
+      return
+    }
     setInput('')
     try {
       await send.mutateAsync(content)
@@ -121,6 +142,10 @@ export function Chat() {
         </div>
       </div>
 
+      <div className="pb-3">
+        <GeminiSetupBanner />
+      </div>
+
       {/* Messages list */}
       <div
         ref={listRef}
@@ -131,7 +156,11 @@ export function Chat() {
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : messages.length === 0 ? (
-          <EmptyState onPromptClick={(p) => handleSend(p)} />
+          <EmptyState
+            hasAi={hasAi}
+            hasRoutines={hasRoutines}
+            onPromptClick={(p) => handleSend(p)}
+          />
         ) : (
           messages.map((m) => <ChatBubble key={m.id} message={m} />)
         )}
@@ -144,15 +173,19 @@ export function Chat() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Chiedi qualcosa… (Shift+Enter per nuova riga)"
+          placeholder={
+            hasAi === false
+              ? 'Configura Gemini in Impostazioni per chattare…'
+              : 'Chiedi qualcosa… (Shift+Enter per nuova riga)'
+          }
           rows={2}
-          disabled={send.isPending}
+          disabled={send.isPending || hasAi === false}
           className="resize-none"
         />
         <Button
           type="button"
           onClick={() => handleSend()}
-          disabled={!input.trim() || send.isPending}
+          disabled={!input.trim() || send.isPending || hasAi === false}
           size="icon"
           className="h-[60px] w-12 shrink-0"
           aria-label="Invia"
@@ -165,8 +198,8 @@ export function Chat() {
         </Button>
       </div>
       <p className="mt-2 text-[10px] text-muted-foreground">
-        L'AI vede profilo, target, pasti, allenamenti con volume per gruppo
-        muscolare, sonno, regole e knowledge base.
+        L'AI vede profilo, target, pasti, schede attive, allenamenti con volume
+        per gruppo muscolare, sonno, regole e knowledge base.
       </p>
 
       <QuickMemoryDialog open={memoryOpen} onOpenChange={setMemoryOpen} />
@@ -178,10 +211,67 @@ export function Chat() {
 // Empty state con prompt suggeriti
 // ============================================================
 function EmptyState({
+  hasAi,
+  hasRoutines,
   onPromptClick,
 }: {
+  hasAi: boolean | null
+  hasRoutines: boolean
   onPromptClick: (prompt: string) => void
 }) {
+  if (hasAi === false) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+          <Sparkles className="h-6 w-6 text-primary" />
+        </div>
+        <div className="max-w-md space-y-2">
+          <h3 className="text-base font-semibold">Serve Gemini per chattare</h3>
+          <p className="text-sm text-muted-foreground">
+            Senza un provider AI attivo la chat non può rispondere. Configura
+            Gemini (key → Testa → modello flash → Provider attivo).
+          </p>
+        </div>
+        <Button asChild>
+          <Link to="/settings#ai-settings">Configura Gemini</Link>
+        </Button>
+      </div>
+    )
+  }
+
+  if (!hasRoutines) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+          <Dumbbell className="h-6 w-6 text-primary" />
+        </div>
+        <div className="max-w-md space-y-2">
+          <h3 className="text-base font-semibold">Parla col tuo companion</h3>
+          <p className="text-sm text-muted-foreground">
+            Puoi chiedere di pasti e target subito. Per valutare volume o
+            programma, crea prima una scheda in Allenamento — non invento
+            esercizi se non hai schede attive.
+          </p>
+        </div>
+        <Button asChild variant="outline">
+          <Link to="/allenamento">Crea una scheda in Allenamento</Link>
+        </Button>
+        <div className="grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
+          {SUGGESTIONS_NO_ROUTINES.map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => onPromptClick(s)}
+              className="rounded-md border border-border bg-background p-3 text-left text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-full flex-col items-center justify-center gap-6 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
@@ -190,12 +280,12 @@ function EmptyState({
       <div className="max-w-md space-y-2">
         <h3 className="text-base font-semibold">Parla col tuo companion</h3>
         <p className="text-sm text-muted-foreground">
-          Chiedi cosa mangiare, analisi della giornata, idee per i pasti.
-          L'AI conosce i tuoi obiettivi, i pasti di oggi e le regole attive.
+          Chiedi cosa mangiare, analisi della giornata o una valutazione della
+          scheda. L'AI usa i tuoi obiettivi, i pasti e le schede attive.
         </p>
       </div>
       <div className="grid w-full max-w-lg grid-cols-1 gap-2 sm:grid-cols-2">
-        {SUGGESTIONS.map((s) => (
+        {SUGGESTIONS_DEFAULT.map((s) => (
           <button
             key={s}
             type="button"

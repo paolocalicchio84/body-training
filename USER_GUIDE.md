@@ -1,6 +1,8 @@
-# Maddaniello's Physique — Guida all'uso
+# MyHealthyLife — Guida all'uso
 
-Companion nutrizionale personale AI. Traccia alimentazione, allenamenti, sonno, misure; l'AI analizza lo storico e suggerisce aggiustamenti basati su target, regole e piano alimentare.
+Companion benessere personale AI (nutrizione + allenamento). Traccia alimentazione, schede, sonno, misure; l'AI analizza lo storico e suggerisce aggiustamenti basati su target, regole e piano alimentare.
+
+**Live:** https://pc-personaltrainer.netlify.app
 
 ---
 
@@ -29,9 +31,9 @@ Per la singola sezione c'è il pulsante **?** accanto all'etichetta in cima a og
 
 ### 1. Registrazione e primo accesso
 
-1. Vai su https://maddaniellos-phisyque.netlify.app/
+1. Vai su https://pc-personaltrainer.netlify.app
 2. **Registrati** con email + password. Se la conferma email è attiva su Supabase, controlla la casella.
-3. Accedi.
+3. Accedi. Se dimentichi la password: **Password dimenticata?** su Sign-in (link email Supabase) oppure reset da Supabase → Authentication → Users.
 
 ### 2. Assessment wizard (5 step)
 
@@ -45,19 +47,21 @@ La prima volta dovresti vedere un card "Completa l'assessment iniziale" sulla Ho
 
 Tutto viene salvato passo per passo, quindi puoi interrompere senza perdere progressi.
 
-### 3. Configura l'AI (raccomandato)
+### 3. Configura Gemini (consigliato — percorso preferito)
 
-Vai su **Impostazioni → AI & modelli**.
+Vai su **Impostazioni → AI & modelli** (badge **Consigliato: Gemini**).
 
-- **Incolla una API key** (OpenAI o Gemini)
-  - OpenAI key: `sk-...` — da https://platform.openai.com/api-keys
-  - Gemini key: `AIza...` — da https://aistudio.google.com/apikey
-- Clicca **Testa** → lista dei modelli
-- Seleziona un modello (consigliati per costo: `gpt-4o-mini` / `gemini-2.0-flash`)
-- **Salva e connetti** → la key viene cifrata con AES-256-GCM e salvata
-- **Budget mensile**: default 5$, imposta quello che preferisci (tipicamente 1-2$ bastano abbondantemente)
+1. Incolla la key Gemini (`AIza...`) da https://aistudio.google.com/apikey
+2. Clicca **Testa** → lista dei modelli
+3. Seleziona un modello flash (es. `gemini-2.0-flash`)
+4. **Salva e connetti**
+5. Imposta **Provider attivo = Gemini**
 
-**Nota**: la knowledge base RAG (Fase 7) richiede specificamente una key OpenAI. Se hai solo Gemini, chat e parsing funzionano ma la retrieval documenti è disattivata.
+OpenAI resta opzionale (embedding / knowledge base documenti). Chat e parse pasti funzionano con solo Gemini.
+
+- **Budget mensile**: default 5$, tipicamente 1–2$ bastano.
+
+**Nota**: la knowledge base RAG documenti utente richiede embedding OpenAI. Con solo Gemini, chat e parsing funzionano ma la retrieval documenti è disattivata.
 
 ### 4. Piano alimentare (consigliato dopo qualche giorno)
 
@@ -121,11 +125,11 @@ Scrivi in linguaggio naturale ("pranzo: 150g riso basmati, petto di pollo 200g, 
 - Click su un risultato → form grammi con preview macro live
 - Conferma
 
-**Barcode** — Per prodotti confezionati.
+**Codice a barre** — Per prodotti confezionati.
 - Apre la fotocamera, scansiona il codice EAN/UPC
-- **Prima cerca localmente** (se hai già salvato quel barcode, lo ritrova istantaneo)
+- **Prima cerca localmente** (se hai già salvato quel codice, lo ritrova istantaneo)
 - Poi OFF
-- Se non trovato → banner con "Aggiungi manualmente questo prodotto": form minimal (nome, brand, macro/100g); viene **salvato legato al barcode** quindi la prossima scansione lo ritrova subito
+- Se non trovato → banner con "Aggiungi manualmente questo prodotto": form minimal (nome, brand, macro/100g); viene **salvato legato al codice** quindi la prossima scansione lo ritrova subito
 
 **Rapido** — Per entries veloci non in database.
 - Nome + grammi + macro diretti
@@ -142,7 +146,7 @@ Scrivi in linguaggio naturale ("pranzo: 150g riso basmati, petto di pollo 200g, 
 Composizioni riutilizzabili (es. "Pollo e riso", "Colazione tipo").
 
 - **Nuova ricetta**: nome + porzioni totali + note
-- **Aggiungi ingrediente**: apre un mini-dialog con le stesse tab di aggiunta pasto (Cerca/Barcode/Rapido) — niente più "solo manuale"
+- **Aggiungi ingrediente**: apre un mini-dialog con le stesse tab di aggiunta pasto (Cerca/Codice a barre/Rapido) — niente più "solo manuale"
 - Per ogni ingrediente puoi aggiustare grammi dopo (i macro ricalcolano automaticamente se è collegato a un alimento custom)
 - **Totale + per porzione** calcolati live
 - Modifica/elimina ricette dal list
@@ -203,7 +207,7 @@ Entrambe vengono iniettate nel contesto di tutte le chat successive.
 
 **Pulisci**: cancella tutta la conversazione. I dati tracciati (pasti, misure, ecc.) restano.
 
-### Review (`/reviews`)
+### Revisione (`/reviews`)
 
 Analisi bisettimanale AI-driven.
 
@@ -219,7 +223,7 @@ Analisi bisettimanale AI-driven.
 
 Banner sulla Home quando:
 - Ultima review > 14 giorni fa + hai target e goal impostati (blanda, neutra)
-- Review recente con `adjust_needed` non ancora applicata/rifiutata (amber, urgente)
+- Revisione recente con `adjust_needed` non ancora applicata/rifiutata (amber, urgente)
 
 ### Impostazioni (`/settings`)
 
@@ -249,7 +253,7 @@ Pagina scrollable con molte sezioni:
 **Ogni pasto (30 secondi)**
 - Pasti → FAB "+"
 - Scegli la modalità più rapida:
-  - Prodotto packaged → **Barcode**
+  - Prodotto packaged → **Codice a barre**
   - Pasto complesso → **AI chat** ("pranzo: pollo 200g, riso 150g, verdure")
   - Alimento già salvato → **Cerca**
   - Porzione rapida → **Rapido**
@@ -313,7 +317,7 @@ Oltre ai documenti che carichi tu, l'AI ha già dentro i principi di **Project N
 ### 5. I rilievi automatici
 Prima di rispondere, l'app calcola da sola alcune conclusioni sui tuoi dati — kcal/kg, aderenza reale ai target, velocità di variazione del peso, serie settimanali per gruppo muscolare, squilibri spinta/trazione, esercizi in stallo — e le passa all'AI come fatti già verificati. Significa due cose: i numeri nelle risposte non sono stimati a occhio, e se un rilievo è un blocco (per esempio "stai già sotto la soglia di kcal/kg, non è il momento di tagliare") l'AI non ti asseconderà se chiedi il contrario.
 
-### 6. Review consistenti
+### 6. Revisioni consistenti
 Genera review ogni 14 giorni. Da questa versione la review legge anche l'allenamento: distingue uno stallo da deficit sbagliato da uno stallo da stimolo insufficiente, cosa che con i soli dati alimentari non era possibile. L'AI migliora i suggerimenti nel tempo quando vede la storia delle review applicate.
 
 ---
@@ -326,7 +330,7 @@ Il budget mensile (Impostazioni → AI & modelli) blocca tutte le call AI quando
 |---|---|
 | Log pasto via AI chat | ~0.015¢ / call |
 | Risposta chat companion | ~0.07¢ / call |
-| Review bisettimanale | ~0.14¢ / call |
+| Revisione bisettimanale | ~0.14¢ / call |
 | Indicizzazione documento 10k caratteri | ~0.02¢ |
 | Retrieval per chat (se hai doc) | ~0.001¢ / call |
 

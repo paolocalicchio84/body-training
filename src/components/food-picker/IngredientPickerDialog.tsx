@@ -59,7 +59,7 @@ export function IngredientPickerDialog({
           />
           <TabButton
             icon={ScanLine}
-            label="Barcode"
+            label="Codice a barre"
             active={tab === 'barcode'}
             onClick={() => setTab('barcode')}
           />

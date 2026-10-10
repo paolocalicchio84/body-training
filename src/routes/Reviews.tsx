@@ -54,7 +54,7 @@ export function Reviews() {
     try {
       const res = await generate.mutateAsync()
       toast.success(
-        `Review generata (${res.cost_cents < 1 ? '<1¢' : (res.cost_cents / 100).toFixed(2) + '¢'})`,
+        `Revisione generata (${res.cost_cents < 1 ? '<1¢' : (res.cost_cents / 100).toFixed(2) + '¢'})`,
       )
       setExpanded(res.review.id)
     } catch (err) {
@@ -75,14 +75,14 @@ export function Reviews() {
   async function handleDismiss(id: string) {
     try {
       await dismiss.mutateAsync(id)
-      toast.success('Review archiviata')
+      toast.success('Revisione archiviata')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Errore')
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Eliminare questa review?')) return
+    if (!confirm('Eliminare questa revisione?')) return
     try {
       await del.mutateAsync(id)
       toast.success('Eliminata')
@@ -96,7 +96,7 @@ export function Reviews() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="flex items-center gap-1 text-xs uppercase tracking-widest text-muted-foreground">
-            Review
+            Revisione
             <SectionHelp id="reviews" />
           </p>
           <h2 className="mt-1 font-mono text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -116,7 +116,7 @@ export function Reviews() {
           ) : (
             <>
               <Sparkles className="h-4 w-4" />
-              Genera review
+              Genera revisione
             </>
           )}
         </Button>
@@ -125,7 +125,7 @@ export function Reviews() {
       {/* Helper stato */}
       {latest && daysSinceLatest != null && (
         <div className="rounded-md border border-border bg-card/50 px-4 py-2 text-xs text-muted-foreground">
-          Ultima review: {daysSinceLatest === 0 ? 'oggi' : `${daysSinceLatest} giorni fa`}
+          Ultima revisione: {daysSinceLatest === 0 ? 'oggi' : `${daysSinceLatest} giorni fa`}
           {daysSinceLatest >= 14 && ' — è il momento di generarne una nuova.'}
         </div>
       )}

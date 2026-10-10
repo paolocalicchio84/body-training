@@ -150,7 +150,7 @@ export const SECTIONS: SectionInfo[] = [
   },
   {
     id: 'reviews',
-    label: 'Review',
+    label: 'Revisione',
     path: '/reviews',
     icon: BarChart3,
     summary:

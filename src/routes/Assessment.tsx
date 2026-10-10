@@ -1,5 +1,5 @@
 import { useState, type FormEvent, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { ArrowLeft, ArrowRight, Check, Sparkles } from 'lucide-react'
 import { Input } from '@/components/ui/Input'
@@ -598,25 +598,31 @@ function DoneStep({
       </div>
       <ul className="space-y-2 text-sm">
         <li>
+          <strong>Gemini</strong> — Impostazioni → AI → key Gemini → Testa →
+          modello flash → Provider attivo = Gemini. Senza questo Chat e parse
+          pasti non funzionano.
+        </li>
+        <li>
           <strong>Pasti</strong> — logga oggi con l'AI o in manuale.
         </li>
         <li>
-          <strong>Impostazioni</strong> — se non l'hai fatto, configura un
-          provider AI per avere il companion in Chat.
+          <strong>Allenamento</strong> — crea almeno una scheda così la chat
+          può valutarla senza inventare esercizi.
         </li>
         <li>
-          <strong>Training / Misure</strong> — aggiungi sessioni e pesati
-          regolarmente per review più accurate.
-        </li>
-        <li>
-          <strong>Review</strong> — dopo 14 giorni di dati, genera una review
-          bisettimanale per tarare i target.
+          <strong>Revisione</strong> — dopo 14 giorni di dati, genera una
+          revisione bisettimanale per tarare i target.
         </li>
       </ul>
-      <div className="flex items-center gap-2 pt-2">
-        <Button type="button" onClick={onGoHome}>
+      <div className="flex flex-wrap items-center gap-2 pt-2">
+        <Button asChild>
+          <Link to="/settings#ai-settings">
+            Configura Gemini
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button type="button" variant="outline" onClick={onGoHome}>
           Vai alla home
-          <ArrowRight className="h-4 w-4" />
         </Button>
         <Button type="button" variant="ghost" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />

@@ -1,4 +1,4 @@
-// Food picker condiviso: 3 tab (Cerca, Barcode, Rapido) più FoodGramsPicker
+// Food picker condiviso: 3 tab (Cerca, Codice a barre, Rapido) più FoodGramsPicker
 // e MacroPreview. Usati da MealAddDialog e IngredientPickerDialog.
 
 import { useState, type FormEvent } from 'react'
@@ -445,7 +445,7 @@ function BarcodeManualEntry({
     <form onSubmit={handleSubmit} className="space-y-3">
       <div className="rounded-md border border-border bg-background/50 p-3">
         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-          Barcode
+          Codice a barre
         </p>
         <p className="mt-0.5 font-mono text-sm">{barcode}</p>
       </div>
