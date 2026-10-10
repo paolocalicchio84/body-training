@@ -94,7 +94,8 @@ L'AI le vede in ogni chat e le rispetta quando suggerisce.
 La dashboard principale. Mostra:
 - **4 card macro** (Kcal, Proteine, Carbo, Grassi) con totale attuale vs target e "mancano Xg"
 - **Peso attuale vs target** con delta vs misura precedente
-- **Banner contestuali**: completa assessment, imposta target, aggiungi misura, logga primo pasto, è ora di ripesarti, review bisettimanale dovuta/pendente
+- **Note del giorno**: testo libero + energia 1–5 (salvate per data; l'AI le vede in chat)
+- **Banner contestuali**: completa assessment, imposta target, aggiungi misura, logga primo pasto, è ora di ripesarti, revisione bisettimanale dovuta/pendente
 
 Accesso rapido alle sezioni principali dalla bottom nav (mobile) o sidebar (desktop).
 

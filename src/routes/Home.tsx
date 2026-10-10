@@ -43,6 +43,7 @@ import {
 } from '@/features/training/useSupplements'
 import { Button } from '@/components/ui/Button'
 import { QuickWeighDialog } from '@/components/QuickWeighDialog'
+import { DailyNoteCard } from '@/components/DailyNoteCard'
 import { cn } from '@/lib/utils'
 import { round0 } from '@/lib/macro'
 import { SectionHelp } from '@/components/tutorial/SectionHelp'
@@ -435,6 +436,9 @@ export function Home() {
           </div>
         </div>
       )}
+
+      {/* Diario giornaliero — note + energia per la data selezionata */}
+      <DailyNoteCard date={selectedDate} isToday={isToday} />
 
       {/* Card Training — sempre visibile se profilo completo */}
       {profile?.sex && profile?.height_cm && (

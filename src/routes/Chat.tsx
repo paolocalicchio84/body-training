@@ -198,8 +198,9 @@ export function Chat() {
         </Button>
       </div>
       <p className="mt-2 text-[10px] text-muted-foreground">
-        L'AI vede profilo, target, pasti, schede attive, allenamenti con volume
-        per gruppo muscolare, sonno, regole e knowledge base.
+        L'AI vede profilo, target, pasti, note del giorno, schede attive,
+        allenamenti con volume per gruppo muscolare, sonno, regole e knowledge
+        base.
       </p>
 
       <QuickMemoryDialog open={memoryOpen} onOpenChange={setMemoryOpen} />

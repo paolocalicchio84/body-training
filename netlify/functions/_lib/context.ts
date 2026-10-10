@@ -93,6 +93,12 @@ type MealPlanRow = {
   position: number
 }
 
+type DailyNoteRow = {
+  note_date: string
+  body: string
+  energy: number | null
+}
+
 export async function buildContext(
   supabase: SupabaseClient,
   userId: string,
@@ -116,6 +122,7 @@ export async function buildContext(
     knowledgeHits,
     training,
     activeRoutines,
+    weekDailyNotes,
   ] = await Promise.all([
     loadProfile(supabase, userId),
     loadRecentMeasurements(supabase, userId),
@@ -129,6 +136,7 @@ export async function buildContext(
     retrieveKnowledge(supabase, userId, opts),
     loadTrainingSets(supabase, userId, TRAINING_WEEKS),
     loadActiveRoutines(supabase, userId),
+    loadWeekDailyNotes(supabase, userId),
   ])
 
   const latestMeasurement = measurements[0] ?? null
@@ -317,6 +325,33 @@ export async function buildContext(
     parts.push(
       `Media: ${avg.toFixed(1)}h${qualityAvg > 0 ? ` · qualità ${qualityAvg.toFixed(1)}/5` : ''} · ${weekSleep.length} notti tracciate`,
     )
+  }
+
+  // --- Diario giornaliero (note + energia) ---
+  if (weekDailyNotes.length > 0) {
+    const todayNote = weekDailyNotes.find((n) => n.note_date === todayIso)
+    parts.push('## Diario giornaliero')
+    if (todayNote) {
+      const energy =
+        todayNote.energy != null ? ` · energia ${todayNote.energy}/5` : ''
+      const body = todayNote.body.trim()
+      parts.push(
+        `Oggi${energy}: ${body || '(solo energia, nessun testo)'}`,
+      )
+    } else {
+      parts.push('Nessuna nota per oggi.')
+    }
+    const older = weekDailyNotes.filter((n) => n.note_date !== todayIso)
+    if (older.length > 0) {
+      parts.push('Ultimi giorni:')
+      for (const n of older.slice(0, 6)) {
+        const energy = n.energy != null ? ` · E${n.energy}/5` : ''
+        const body = n.body.trim()
+        const preview =
+          body.length > 120 ? `${body.slice(0, 117)}…` : body || '(solo energia)'
+        parts.push(`- ${n.note_date}${energy}: ${preview}`)
+      }
+    }
   }
 
   // --- Piano alimentare (alimenti previsti per pasto) ---
@@ -598,6 +633,27 @@ async function loadWeekSleep(
     .gte('sleep_date', startDate)
     .order('sleep_date', { ascending: false })
   return (data as SleepRow[]) ?? []
+}
+
+async function loadWeekDailyNotes(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<DailyNoteRow[]> {
+  const start = new Date()
+  start.setDate(start.getDate() - 6)
+  const startDate = localDayKey(start)
+  const { data, error } = await supabase
+    .from('daily_notes')
+    .select('note_date, body, energy')
+    .eq('user_id', userId)
+    .gte('note_date', startDate)
+    .order('note_date', { ascending: false })
+  if (error) {
+    // Tabella assente finché Paolo non applica 0014 — non far fallire la chat.
+    console.error('loadWeekDailyNotes:', error.message)
+    return []
+  }
+  return (data as DailyNoteRow[]) ?? []
 }
 
 // --------------------------------------------------------------
