@@ -15,7 +15,9 @@ import {
   formatTrainingContext,
 } from './coach/training-rules'
 import {
+  formatActiveRoutines,
   formatRecentSessions,
+  loadActiveRoutines,
   loadTrainingSets,
 } from './coach/training-data'
 
@@ -113,6 +115,7 @@ export async function buildContext(
     mealPlan,
     knowledgeHits,
     training,
+    activeRoutines,
   ] = await Promise.all([
     loadProfile(supabase, userId),
     loadRecentMeasurements(supabase, userId),
@@ -125,6 +128,7 @@ export async function buildContext(
     loadMealPlan(supabase, userId),
     retrieveKnowledge(supabase, userId, opts),
     loadTrainingSets(supabase, userId, TRAINING_WEEKS),
+    loadActiveRoutines(supabase, userId),
   ])
 
   const latestMeasurement = measurements[0] ?? null
@@ -264,6 +268,10 @@ export async function buildContext(
     }
   }
 
+  // --- Schede pianificate (programma / split) ---
+  // Senza questo blocco la chat inventa la "scheda attuale".
+  parts.push(formatActiveRoutines(activeRoutines))
+
   // --- Allenamento strutturato: analisi calcolata, non dedotta ---
   const trainingAnalysis = analyzeTraining(
     training.sets,
@@ -276,6 +284,11 @@ export async function buildContext(
     if (recent.length > 0) {
       parts.push('### Ultime sedute\n' + recent.join('\n'))
     }
+  } else {
+    parts.push(
+      `## Allenamento loggato (ultime ${TRAINING_WEEKS} settimane)\n` +
+        'Nessuna seduta completata nel periodo. Non inventare log, carichi o progressioni: se servono, chiedili all\'utente.',
+    )
   }
 
   // --- Allenamenti generici / cardio (ultimi 7 giorni) ---

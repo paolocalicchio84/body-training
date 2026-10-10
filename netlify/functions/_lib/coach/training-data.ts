@@ -110,6 +110,162 @@ export async function loadTrainingSets(
   return { sets, sessions }
 }
 
+// --------------------------------------------------------------
+// Schede pianificate (routines) — ciò che l'utente ha in programma
+// --------------------------------------------------------------
+
+export type RoutineExercisePlan = {
+  name: string
+  primary_muscle: string
+  target_sets: number
+  rep_min: number | null
+  rep_max: number | null
+  target_rpe: number | null
+  rest_sec: number | null
+}
+
+export type RoutinePlanSummary = {
+  id: string
+  name: string
+  description: string | null
+  weekday: number | null
+  folder_name: string | null
+  folder_goal: string | null
+  last_performed_at: string | null
+  exercises: RoutineExercisePlan[]
+}
+
+const WEEKDAYS = ['lun', 'mar', 'mer', 'gio', 'ven', 'sab', 'dom']
+
+/**
+ * Schede non archiviate dell'utente, con esercizi e (se c'è) il
+ * programma/folder. Usato dalla chat generale: senza questo blocco
+ * il modello inventa la "scheda attuale".
+ */
+export async function loadActiveRoutines(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<RoutinePlanSummary[]> {
+  const { data, error } = await supabase
+    .from('routines')
+    .select(
+      `id, name, description, weekday, last_performed_at, position,
+       folder:routine_folders ( name, goal, archived ),
+       routine_exercises (
+         position, target_sets, rep_min, rep_max, target_rpe, rest_sec,
+         exercise:exercise_catalog ( name, primary_muscle )
+       )`,
+    )
+    .eq('user_id', userId)
+    .eq('archived', false)
+    .order('position', { ascending: true })
+
+  if (error) {
+    console.error('loadActiveRoutines:', error.message)
+    return []
+  }
+
+  type Row = {
+    id: string
+    name: string
+    description: string | null
+    weekday: number | null
+    last_performed_at: string | null
+    folder: { name: string; goal: string | null; archived: boolean } | null
+    routine_exercises: Array<{
+      position: number
+      target_sets: number
+      rep_min: number | null
+      rep_max: number | null
+      target_rpe: number | null
+      rest_sec: number | null
+      exercise: { name: string; primary_muscle: string } | null
+    }>
+  }
+
+  return ((data ?? []) as unknown as Row[])
+    .filter((r) => !r.folder?.archived)
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      weekday: r.weekday,
+      folder_name: r.folder?.name ?? null,
+      folder_goal: r.folder?.goal ?? null,
+      last_performed_at: r.last_performed_at,
+      exercises: (r.routine_exercises ?? [])
+        .filter((re) => re.exercise)
+        .sort((a, b) => a.position - b.position)
+        .map((re) => ({
+          name: re.exercise!.name,
+          primary_muscle: re.exercise!.primary_muscle,
+          target_sets: re.target_sets,
+          rep_min: re.rep_min,
+          rep_max: re.rep_max,
+          target_rpe: re.target_rpe,
+          rest_sec: re.rest_sec,
+        })),
+    }))
+}
+
+/** Sezione markdown "Schede attive" per il system prompt della chat. */
+export function formatActiveRoutines(routines: RoutinePlanSummary[]): string {
+  const lines: string[] = ['## Schede attive (programma pianificato)']
+  if (routines.length === 0) {
+    lines.push(
+      'Nessuna scheda salvata per questo utente. Se chiede della "scheda" o del programma, dillo chiaramente: non inventare esercizi, serie o split.',
+    )
+    return lines.join('\n')
+  }
+
+  lines.push(
+    "Queste sono le uniche schede dell'utente. Per valutarle o modificarle usa SOLO questi dati; non aggiungere esercizi assenti dall'elenco.",
+  )
+
+  // Raggruppa per programma per leggibilità
+  const byFolder = new Map<string, RoutinePlanSummary[]>()
+  for (const r of routines) {
+    const key = r.folder_name ?? '(senza programma)'
+    if (!byFolder.has(key)) byFolder.set(key, [])
+    byFolder.get(key)!.push(r)
+  }
+
+  for (const [folder, list] of byFolder) {
+    const goal = list.find((r) => r.folder_goal)?.folder_goal
+    lines.push(
+      `### Programma: ${folder}${goal ? ` · obiettivo ${goal}` : ''}`,
+    )
+    for (const r of list) {
+      const day =
+        r.weekday != null && r.weekday >= 0 && r.weekday <= 6
+          ? WEEKDAYS[r.weekday]
+          : null
+      const last = r.last_performed_at
+        ? ` · ultima volta ${r.last_performed_at.slice(0, 10)}`
+        : ''
+      lines.push(
+        `#### Scheda: ${r.name}${day ? ` (${day})` : ''}${last}`,
+      )
+      if (r.description) lines.push(r.description)
+      if (r.exercises.length === 0) {
+        lines.push('- (nessun esercizio in scheda)')
+        continue
+      }
+      for (const e of r.exercises) {
+        const reps =
+          e.rep_min != null || e.rep_max != null
+            ? `${e.rep_min ?? '?'}-${e.rep_max ?? '?'} rep`
+            : 'rep libere'
+        const rpe = e.target_rpe != null ? ` @RPE ${e.target_rpe}` : ''
+        lines.push(
+          `- ${e.name} (${e.primary_muscle}): ${e.target_sets} serie · ${reps}${rpe}`,
+        )
+      }
+    }
+  }
+  return lines.join('\n')
+}
+
 /** Righe compatte "cosa ha fatto nelle ultime sedute" per il prompt. */
 export function formatRecentSessions(
   sessions: SessionSummary[],
