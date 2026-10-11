@@ -157,13 +157,17 @@ export function ExerciseDetail({ open, onOpenChange, exerciseId }: Props) {
                 videoUrl={exercise.video_url}
               />
               <div className="space-y-1.5">
-                <Label htmlFor="exercise-video-url">Link demo</Label>
+                <Label htmlFor="exercise-video-url">
+                  {exercise.video_url
+                    ? 'La tua demo (sostituisce la GIF automatica)'
+                    : 'Sostituisci demo (opzionale)'}
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     id="exercise-video-url"
                     type="url"
                     inputMode="url"
-                    placeholder="YouTube, GIF o MP4…"
+                    placeholder="Incolla YouTube / Shorts / GIF / MP4…"
                     value={videoDraft}
                     onChange={(e) => setVideoDraft(e.target.value)}
                     className="font-mono text-xs"
@@ -180,9 +184,43 @@ export function ExerciseDetail({ open, onOpenChange, exerciseId }: Props) {
                   </Button>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Incolla un URL YouTube / Shorts, Vimeo, .gif o .mp4. Resta
-                  salvato sul catalogo per scheda e seduta.
+                  GIF sbagliata? Incolla un link migliore e premi Salva: vale
+                  solo per questo esercizio, in scheda e in seduta. Campo vuoto
+                  + Salva = torna alla GIF automatica (o a YouTube search).
                 </p>
+                {exercise.video_url && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 text-xs"
+                    disabled={updateVideo.isPending}
+                    onClick={async () => {
+                      setVideoDraft('')
+                      try {
+                        await updateVideo.mutateAsync({
+                          id: exercise.id,
+                          video_url: null,
+                          isGlobal: exercise.user_id == null,
+                        })
+                        toast.success('Tornata la demo automatica')
+                      } catch (err) {
+                        const msg =
+                          err instanceof Error
+                            ? err.message
+                            : 'Salvataggio fallito'
+                        toast.error(
+                          msg.includes('exercise_video_overrides') ||
+                            msg.includes('schema cache')
+                            ? 'Esegui la migration 0015 su Supabase, poi riprova'
+                            : msg,
+                        )
+                      }
+                    }}
+                  >
+                    Rimuovi il mio link
+                  </Button>
+                )}
               </div>
             </div>
 

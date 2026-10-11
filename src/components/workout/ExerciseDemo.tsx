@@ -126,8 +126,14 @@ export function ExerciseDemo({
       )}
       {fromCatalog && (
         <p className="text-[10px] text-muted-foreground">
-          GIF tecnica dal catalogo ExerciseDB (uso personale). Puoi sostituirla
-          con un tuo link sotto.
+          GIF automatica (ExerciseDB). Se non è quella giusta, incolla sotto un
+          YouTube/GIF e Salva — sovrascrive solo questo esercizio.
+        </p>
+      )}
+      {!fromCatalog && resolved && (
+        <p className="text-[10px] text-muted-foreground">
+          Demo personalizzata da te. “Rimuovi il mio link” ripristina la GIF
+          automatica.
         </p>
       )}
     </div>
