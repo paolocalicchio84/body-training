@@ -153,6 +153,7 @@ export function ExerciseDetail({ open, onOpenChange, exerciseId }: Props) {
               </p>
               <ExerciseDemo
                 exerciseName={exercise.name}
+                aliases={exercise.aliases}
                 videoUrl={exercise.video_url}
               />
               <div className="space-y-1.5">

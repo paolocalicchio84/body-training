@@ -1,5 +1,9 @@
 /** Parse exercise demo URLs (YouTube, Vimeo, MP4, GIF, image). */
 
+import gifFallbacks from '@/data/exercise-demo-gifs.json'
+
+const GIF_MAP = gifFallbacks as Record<string, string>
+
 export type ExerciseMediaKind =
   | 'youtube'
   | 'vimeo'
@@ -19,6 +23,37 @@ export type ExerciseMedia = {
 export function youtubeSearchUrl(exerciseName: string): string {
   const q = `${exerciseName} esercizio tecnica`
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`
+}
+
+/**
+ * URL demo effettivo: link salvato dall'utente, altrimenti GIF del
+ * catalogo ExerciseDB mappata su nome/alias (es. Lat machine).
+ */
+export function resolveExerciseDemoUrl(opts: {
+  videoUrl?: string | null
+  name: string
+  aliases?: string[] | null
+}): string | null {
+  const saved = opts.videoUrl?.trim()
+  if (saved) return saved
+
+  const keys = [opts.name, ...(opts.aliases ?? [])]
+    .map((k) => k.toLowerCase().trim())
+    .filter(Boolean)
+
+  for (const k of keys) {
+    if (GIF_MAP[k]) return GIF_MAP[k]
+  }
+
+  // Match parziale solo per chiavi corte/stabili (es. "lat machine")
+  for (const k of keys) {
+    for (const [mapKey, url] of Object.entries(GIF_MAP)) {
+      if (mapKey.length < 6) continue
+      if (k.includes(mapKey) || mapKey.includes(k)) return url
+    }
+  }
+
+  return null
 }
 
 export function parseExerciseMedia(raw: string | null | undefined): ExerciseMedia | null {

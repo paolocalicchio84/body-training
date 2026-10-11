@@ -24,7 +24,7 @@ import { ExercisePickerDialog } from '@/components/workout/ExercisePickerDialog'
 import { DemoBadge } from '@/components/workout/ExerciseDemo'
 import { ExerciseDetail } from './ExerciseDetail'
 import { useExercises } from '@/features/workout/useExercises'
-import { parseExerciseMedia } from '@/lib/exercise-media'
+import { resolveExerciseDemoUrl } from '@/lib/exercise-media'
 import {
   useCreateRoutine,
   useRoutine,
@@ -364,10 +364,17 @@ export function RoutineEditor({ open, onOpenChange, routineId }: Props) {
                               </p>
                               <DemoBadge
                                 hasDemo={Boolean(
-                                  parseExerciseMedia(
-                                    catalog.find((e) => e.id === r.exerciseId)
-                                      ?.video_url,
-                                  ),
+                                  (() => {
+                                    const ex = catalog.find(
+                                      (e) => e.id === r.exerciseId,
+                                    )
+                                    if (!ex) return false
+                                    return resolveExerciseDemoUrl({
+                                      videoUrl: ex.video_url,
+                                      name: ex.name,
+                                      aliases: ex.aliases,
+                                    })
+                                  })(),
                                 )}
                               />
                             </div>

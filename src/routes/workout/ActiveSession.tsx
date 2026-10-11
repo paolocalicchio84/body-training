@@ -30,7 +30,7 @@ import { ExercisePickerDialog } from '@/components/workout/ExercisePickerDialog'
 import { RestTimer } from '@/components/workout/RestTimer'
 import { DemoBadge } from '@/components/workout/ExerciseDemo'
 import { ExerciseDetail } from './ExerciseDetail'
-import { parseExerciseMedia } from '@/lib/exercise-media'
+import { resolveExerciseDemoUrl } from '@/lib/exercise-media'
 import { cn } from '@/lib/utils'
 import { useExercise } from '@/features/workout/useExercises'
 import {
@@ -554,7 +554,14 @@ function ExerciseCard({
     return joined ?? null
   }, [sessionExercise.exercise, cachedExercise])
   const [detailOpen, setDetailOpen] = useState(false)
-  const hasDemo = Boolean(parseExerciseMedia(exercise?.video_url))
+  const hasDemo = Boolean(
+    exercise &&
+      resolveExerciseDemoUrl({
+        videoUrl: exercise.video_url,
+        name: exercise.name,
+        aliases: exercise.aliases,
+      }),
+  )
 
   const addSet = useAddSet()
   const updateSet = useUpdateSet()
