@@ -11,6 +11,8 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { useExerciseSearch } from '@/features/workout/useExercises'
+import { DemoBadge } from '@/components/workout/ExerciseDemo'
+import { parseExerciseMedia } from '@/lib/exercise-media'
 import {
   EQUIPMENT_LABELS,
   MUSCLE_ORDER,
@@ -154,6 +156,9 @@ export function ExercisePickerDialog({
                           <span className="truncate text-sm font-medium">
                             {ex.name}
                           </span>
+                          <DemoBadge
+                            hasDemo={Boolean(parseExerciseMedia(ex.video_url))}
+                          />
                           {ex.tier === 1 && (
                             <span className="shrink-0 rounded bg-primary/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-primary">
                               base

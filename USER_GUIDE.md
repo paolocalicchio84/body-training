@@ -156,9 +156,9 @@ Composizioni riutilizzabili (es. "Pollo e riso", "Colazione tipo").
 
 Il tracking della sala pesi, con quattro schede.
 
-**Schede** — le tue routine, raggruppate per programma. Ogni scheda contiene gli esercizi con serie, range di ripetizioni, RPE target e recupero. Mentre la costruisci vedi in tempo reale quante serie stai assegnando a ogni gruppo muscolare: è il modo più rapido per accorgerti di uno squilibrio prima di allenarti. Da qui parti con "Inizia".
+**Schede** — le tue routine, raggruppate per programma. Ogni scheda contiene gli esercizi con serie, range di ripetizioni, RPE target e recupero. Mentre la costruisci vedi in tempo reale quante serie stai assegnando a ogni gruppo muscolare: è il modo più rapido per accorgerti di uno squilibrio prima di allenarti. Da qui parti con "Inizia". Tap sul nome esercizio → **demo** (YouTube / GIF / MP4): puoi incollare un link e salvarlo.
 
-**Allenamento in corso** — il logger. Per ogni esercizio hai la colonna *Precedente* con quello che avevi fatto l'ultima volta (tap per copiarlo), i campi kg e ripetizioni, e la spunta che chiude la serie e fa partire il timer di recupero. Puoi marcare le serie come riscaldamento, drop set, a cedimento o back-off; il riscaldamento non conta nel volume. Alla chiusura la sessione calcola i record personali e crea da sola la voce corrispondente in Recupero, così il bilancio calorico resta allineato.
+**Allenamento in corso** — il logger. Per ogni esercizio hai la colonna *Precedente* con quello che avevi fatto l'ultima volta (tap per copiarlo), i campi kg e ripetizioni, e la spunta che chiude la serie e fa partire il timer di recupero. Tap sul nome (o icona play) apre demo + dettaglio. Puoi marcare le serie come riscaldamento, drop set, a cedimento o back-off; il riscaldamento non conta nel volume. Alla chiusura la sessione calcola i record personali e crea da sola la voce corrispondente in Recupero, così il bilancio calorico resta allineato.
 
 **Storico** — tutte le sedute completate, espandibili per rivedere serie e carichi, con il badge sui record.
 

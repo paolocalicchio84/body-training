@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { ArrowDown, ArrowUp, Loader2, Plus, Save, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, Loader2, PlayCircle, Plus, Save, X } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,10 @@ import {
 } from '@/components/ui/Select'
 import { Separator } from '@/components/ui/Separator'
 import { ExercisePickerDialog } from '@/components/workout/ExercisePickerDialog'
+import { DemoBadge } from '@/components/workout/ExerciseDemo'
+import { ExerciseDetail } from './ExerciseDetail'
+import { useExercises } from '@/features/workout/useExercises'
+import { parseExerciseMedia } from '@/lib/exercise-media'
 import {
   useCreateRoutine,
   useRoutine,
@@ -92,12 +96,14 @@ export function RoutineEditor({ open, onOpenChange, routineId }: Props) {
 
   const create = useCreateRoutine()
   const update = useUpdateRoutine()
+  const { data: catalog = [] } = useExercises()
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [weekday, setWeekday] = useState('none')
   const [notes, setNotes] = useState('')
   const [rows, setRows] = useState<EditorRow[]>([])
+  const [detailId, setDetailId] = useState<string | null>(null)
   const [pickerOpen, setPickerOpen] = useState(false)
 
   // Il form si precompila una sola volta per apertura: un refetch della
@@ -347,15 +353,42 @@ export function RoutineEditor({ open, onOpenChange, routineId }: Props) {
                         className="rounded-md border border-border bg-background/50 p-3"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">
-                              {i + 1}. {r.name}
-                            </p>
+                          <button
+                            type="button"
+                            className="min-w-0 flex-1 rounded-md text-left hover:bg-secondary/50"
+                            onClick={() => setDetailId(r.exerciseId)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <p className="truncate text-sm font-medium">
+                                {i + 1}. {r.name}
+                              </p>
+                              <DemoBadge
+                                hasDemo={Boolean(
+                                  parseExerciseMedia(
+                                    catalog.find((e) => e.id === r.exerciseId)
+                                      ?.video_url,
+                                  ),
+                                )}
+                              />
+                            </div>
                             <p className="truncate text-xs text-muted-foreground">
                               {muscleLabel(r.primaryMuscle)}
+                              {' · '}
+                              <span className="text-primary/80">demo</span>
                             </p>
-                          </div>
+                          </button>
                           <div className="flex shrink-0 items-center gap-1">
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              className="h-8 w-8"
+                              onClick={() => setDetailId(r.exerciseId)}
+                              aria-label="Apri demo"
+                              title="Demo / dettaglio"
+                            >
+                              <PlayCircle className="h-3.5 w-3.5" />
+                            </Button>
                             <Button
                               type="button"
                               size="icon"
@@ -514,6 +547,14 @@ export function RoutineEditor({ open, onOpenChange, routineId }: Props) {
         onSelect={addExercises}
         multiple
         title="Aggiungi esercizi alla scheda"
+      />
+
+      <ExerciseDetail
+        open={!!detailId}
+        onOpenChange={(o) => {
+          if (!o) setDetailId(null)
+        }}
+        exerciseId={detailId}
       />
     </>
   )

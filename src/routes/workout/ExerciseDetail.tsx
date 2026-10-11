@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   CartesianGrid,
   Line,
@@ -10,6 +10,7 @@ import {
 } from 'recharts'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
+import { toast } from 'sonner'
 import { AlertTriangle, Loader2 } from 'lucide-react'
 import {
   Dialog,
@@ -19,7 +20,14 @@ import {
   DialogTitle,
 } from '@/components/ui/Dialog'
 import { Separator } from '@/components/ui/Separator'
-import { useExercises } from '@/features/workout/useExercises'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Label'
+import { ExerciseDemo } from '@/components/workout/ExerciseDemo'
+import {
+  useExercises,
+  useUpdateExerciseVideoUrl,
+} from '@/features/workout/useExercises'
 import {
   useExerciseHistory,
   usePersonalRecords,
@@ -59,6 +67,37 @@ export function ExerciseDetail({ open, onOpenChange, exerciseId }: Props) {
     data: records = [],
     isError: recordsError,
   } = usePersonalRecords(open ? exerciseId : null)
+
+  const updateVideo = useUpdateExerciseVideoUrl()
+  const [videoDraft, setVideoDraft] = useState('')
+
+  useEffect(() => {
+    setVideoDraft(exercise?.video_url ?? '')
+  }, [exercise?.id, exercise?.video_url, open])
+
+  async function handleSaveVideo() {
+    if (!exercise) return
+    const next = videoDraft.trim() || null
+    if (next === (exercise.video_url ?? null)) {
+      toast.message('Nessuna modifica')
+      return
+    }
+    try {
+      await updateVideo.mutateAsync({
+        id: exercise.id,
+        video_url: next,
+        isGlobal: exercise.user_id == null,
+      })
+      toast.success(next ? 'Demo collegata' : 'Demo rimossa')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Salvataggio fallito'
+      toast.error(
+        msg.includes('exercise_video_overrides') || msg.includes('schema cache')
+          ? 'Esegui la migration 0015 su Supabase, poi riprova'
+          : msg,
+      )
+    }
+  }
 
   const chartData = useMemo(
     () =>
@@ -108,6 +147,46 @@ export function ExerciseDetail({ open, onOpenChange, exerciseId }: Props) {
           </p>
         ) : (
           <div className="space-y-5">
+            <div className="space-y-2">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                Come si esegue
+              </p>
+              <ExerciseDemo
+                exerciseName={exercise.name}
+                videoUrl={exercise.video_url}
+              />
+              <div className="space-y-1.5">
+                <Label htmlFor="exercise-video-url">Link demo</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="exercise-video-url"
+                    type="url"
+                    inputMode="url"
+                    placeholder="YouTube, GIF o MP4…"
+                    value={videoDraft}
+                    onChange={(e) => setVideoDraft(e.target.value)}
+                    className="font-mono text-xs"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0"
+                    onClick={handleSaveVideo}
+                    disabled={updateVideo.isPending}
+                  >
+                    {updateVideo.isPending ? '…' : 'Salva'}
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Incolla un URL YouTube / Shorts, Vimeo, .gif o .mp4. Resta
+                  salvato sul catalogo per scheda e seduta.
+                </p>
+              </div>
+            </div>
+
+            <Separator />
+
             {exercise.discouraged && (
               <div className="flex gap-2 rounded-md border border-warning/40 bg-warning/5 p-3">
                 <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-warning" />

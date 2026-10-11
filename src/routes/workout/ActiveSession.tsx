@@ -9,6 +9,7 @@ import {
   Dumbbell,
   Loader2,
   MoreVertical,
+  PlayCircle,
   Plus,
   StickyNote,
   Trash2,
@@ -27,6 +28,9 @@ import {
 } from '@/components/ui/Dialog'
 import { ExercisePickerDialog } from '@/components/workout/ExercisePickerDialog'
 import { RestTimer } from '@/components/workout/RestTimer'
+import { DemoBadge } from '@/components/workout/ExerciseDemo'
+import { ExerciseDetail } from './ExerciseDetail'
+import { parseExerciseMedia } from '@/lib/exercise-media'
 import { cn } from '@/lib/utils'
 import { useExercise } from '@/features/workout/useExercises'
 import {
@@ -539,7 +543,18 @@ function ExerciseCard({
   onRest: (seconds: number) => void
 }) {
   const cachedExercise = useExercise(sessionExercise.exercise_id)
-  const exercise = sessionExercise.exercise ?? cachedExercise
+  // Preferisci catalogo (con override video utente) rispetto al join sessione.
+  const exercise = useMemo(() => {
+    const joined = sessionExercise.exercise
+    if (cachedExercise) {
+      return joined
+        ? { ...joined, video_url: cachedExercise.video_url }
+        : cachedExercise
+    }
+    return joined ?? null
+  }, [sessionExercise.exercise, cachedExercise])
+  const [detailOpen, setDetailOpen] = useState(false)
+  const hasDemo = Boolean(parseExerciseMedia(exercise?.video_url))
 
   const addSet = useAddSet()
   const updateSet = useUpdateSet()
@@ -634,15 +649,34 @@ function ExerciseCard({
     <Card>
       <CardContent className="space-y-3 p-3 sm:p-4">
         <div className="relative flex items-start gap-2">
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate text-base font-semibold">
-              {exercise?.name ?? 'Esercizio'}
-            </h3>
+          <button
+            type="button"
+            className="min-w-0 flex-1 rounded-md text-left transition-colors hover:bg-secondary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={() => setDetailOpen(true)}
+          >
+            <div className="flex items-center gap-2">
+              <h3 className="truncate text-base font-semibold">
+                {exercise?.name ?? 'Esercizio'}
+              </h3>
+              <DemoBadge hasDemo={hasDemo} />
+            </div>
             <p className="truncate text-xs text-muted-foreground">
               {exercise ? muscleLabel(exercise.primary_muscle) : '—'}
               {last && ` · ultima volta ${last.sets.length} serie`}
+              {' · '}
+              <span className="text-primary/80">demo / dettaglio</span>
             </p>
-          </div>
+          </button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setDetailOpen(true)}
+            aria-label="Apri demo esercizio"
+            title="Demo / dettaglio"
+          >
+            <PlayCircle className="h-4 w-4" />
+          </Button>
           <Button
             type="button"
             variant="ghost"
@@ -662,6 +696,17 @@ function ExerciseCard({
                 onClick={() => setMenuOpen(false)}
               />
               <div className="absolute right-0 top-11 z-30 w-56 overflow-hidden rounded-md border border-border bg-popover shadow-lg">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 px-3 py-3 text-left text-sm hover:bg-secondary"
+                  onClick={() => {
+                    setMenuOpen(false)
+                    setDetailOpen(true)
+                  }}
+                >
+                  <PlayCircle className="h-4 w-4 text-muted-foreground" />
+                  Demo / come si esegue
+                </button>
                 <button
                   type="button"
                   className="flex w-full items-center gap-2 px-3 py-3 text-left text-sm hover:bg-secondary"
@@ -875,6 +920,12 @@ function ExerciseCard({
           )}
         </DialogContent>
       </Dialog>
+
+      <ExerciseDetail
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        exerciseId={sessionExercise.exercise_id}
+      />
     </Card>
   )
 }

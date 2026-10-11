@@ -15,13 +15,32 @@ export function useExercises() {
   return useQuery({
     queryKey: ['exercise-catalog', user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('exercise_catalog')
-        .select(EXERCISE_COLS)
-        .eq('archived', false)
-        .order('name')
-      if (error) throw error
-      return (data ?? []) as Exercise[]
+      const [catalogRes, overridesRes] = await Promise.all([
+        supabase
+          .from('exercise_catalog')
+          .select(EXERCISE_COLS)
+          .eq('archived', false)
+          .order('name'),
+        supabase
+          .from('exercise_video_overrides')
+          .select('exercise_id, video_url')
+          .eq('user_id', user!.id),
+      ])
+      if (catalogRes.error) throw catalogRes.error
+      // Tabella 0015 assente finché non applicata: ignora e usa solo catalogo.
+      const overrides = new Map<string, string | null>()
+      if (!overridesRes.error) {
+        for (const row of overridesRes.data ?? []) {
+          overrides.set(row.exercise_id as string, row.video_url as string | null)
+        }
+      }
+      const rows = (catalogRes.data ?? []) as Exercise[]
+      if (overrides.size === 0) return rows
+      return rows.map((e) =>
+        overrides.has(e.id)
+          ? { ...e, video_url: overrides.get(e.id) ?? null }
+          : e,
+      )
     },
     enabled: !!user,
     staleTime: 30 * 60 * 1000,
@@ -141,6 +160,60 @@ export function useDeleteExercise() {
         .update({ archived: true })
         .eq('id', id)
       if (error) throw error
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['exercise-catalog'] }),
+  })
+}
+
+/**
+ * Salva URL demo. Esercizi custom (tuoi): aggiorna catalogo.
+ * Seed globali: upsert in exercise_video_overrides (RLS).
+ */
+export function useUpdateExerciseVideoUrl() {
+  const { user } = useAuth()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {
+      id: string
+      video_url: string | null
+      /** Se true, esercizio seed globale → override utente */
+      isGlobal?: boolean
+    }) => {
+      const video_url = input.video_url?.trim() || null
+      const isGlobal = input.isGlobal ?? false
+
+      if (!isGlobal) {
+        const { data, error } = await supabase
+          .from('exercise_catalog')
+          .update({ video_url })
+          .eq('id', input.id)
+          .eq('user_id', user!.id)
+          .select(EXERCISE_COLS)
+          .single()
+        if (error) throw error
+        return data as Exercise
+      }
+
+      if (video_url == null) {
+        const { error } = await supabase
+          .from('exercise_video_overrides')
+          .delete()
+          .eq('user_id', user!.id)
+          .eq('exercise_id', input.id)
+        if (error) throw error
+        return null
+      }
+
+      const { error } = await supabase.from('exercise_video_overrides').upsert(
+        {
+          user_id: user!.id,
+          exercise_id: input.id,
+          video_url,
+        },
+        { onConflict: 'user_id,exercise_id' },
+      )
+      if (error) throw error
+      return null
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['exercise-catalog'] }),
   })
