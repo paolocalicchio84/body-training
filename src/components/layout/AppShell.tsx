@@ -5,6 +5,7 @@ import { BottomNav } from './BottomNav'
 import { ErrorBoundary } from './ErrorBoundary'
 import { TutorialDialog } from '@/components/tutorial/TutorialDialog'
 import { useTutorialController } from '@/features/tutorial/useTutorial'
+import { WorkoutClockProvider } from '@/features/workout/WorkoutClock'
 
 export function AppShell() {
   // Montato qui e non nelle singole pagine: il tour si apre al primo
@@ -23,7 +24,9 @@ export function AppShell() {
         <main className="min-w-0 flex-1 px-4 pb-24 pt-4 md:px-8 md:pb-8">
           <div className="mx-auto min-w-0 max-w-5xl">
             <ErrorBoundary>
-              <Outlet />
+              <WorkoutClockProvider>
+                <Outlet />
+              </WorkoutClockProvider>
             </ErrorBoundary>
           </div>
         </main>

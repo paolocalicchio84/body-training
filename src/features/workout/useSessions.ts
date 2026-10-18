@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/features/auth/AuthProvider'
+import { clearWorkoutActivity } from './sessionClock'
 import { estimate1rm } from './types'
 import type {
   LastPerformance,
@@ -223,6 +224,8 @@ export function useFinishSession() {
       notes?: string | null
       sessionRpe?: number | null
       kcalBurned?: number | null
+      /** Se presente, è la durata confermata: non il wall clock da started_at. */
+      durationSec?: number | null
     }) => {
       const { data: session, error: readErr } = await supabase
         .from('workout_sessions')
@@ -245,11 +248,19 @@ export function useFinishSession() {
       }
 
       const startedAt = new Date(full.started_at)
-      const endedAt = new Date()
-      const durationSec = Math.max(
-        60,
-        Math.round((endedAt.getTime() - startedAt.getTime()) / 1000),
-      )
+      const durationSec =
+        input.durationSec != null
+          ? Math.max(60, Math.round(input.durationSec))
+          : Math.max(
+              60,
+              Math.round((Date.now() - startedAt.getTime()) / 1000),
+            )
+      // Con una durata esplicita la fine coincide con inizio + durata, così
+      // un buco di ore non resta scritto come tempo di allenamento.
+      const endedAt =
+        input.durationSec != null
+          ? new Date(startedAt.getTime() + durationSec * 1000)
+          : new Date()
 
       const { error: updErr } = await supabase
         .from('workout_sessions')
@@ -294,7 +305,8 @@ export function useFinishSession() {
 
       return { prs }
     },
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
+      clearWorkoutActivity(vars.sessionId)
       qc.invalidateQueries({ queryKey: ['active-session'] })
       qc.invalidateQueries({ queryKey: ['sessions'] })
       qc.invalidateQueries({ queryKey: ['session'] })
@@ -451,7 +463,93 @@ export function useDiscardSession() {
         .eq('id', sessionId)
       if (error) throw error
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['active-session'] }),
+    onSuccess: (_data, sessionId) => {
+      clearWorkoutActivity(sessionId)
+      qc.invalidateQueries({ queryKey: ['active-session'] })
+    },
+  })
+}
+
+export function useUpdateCompletedSession() {
+  const { user } = useAuth()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {
+      sessionId: string
+      startedAt: string
+      durationSec: number
+      notes: string | null
+    }) => {
+      const durationSec = Math.max(60, Math.round(input.durationSec))
+      const startedAt = new Date(input.startedAt)
+      if (Number.isNaN(startedAt.getTime())) {
+        throw new Error('Data di inizio non valida')
+      }
+      const endedAt = new Date(startedAt.getTime() + durationSec * 1000)
+      const notes = input.notes?.trim() ? input.notes.trim() : null
+
+      const { error: updErr } = await supabase
+        .from('workout_sessions')
+        .update({
+          started_at: startedAt.toISOString(),
+          ended_at: endedAt.toISOString(),
+          duration_sec: durationSec,
+          notes,
+        })
+        .eq('id', input.sessionId)
+        .eq('status', 'completed')
+      if (updErr) throw updErr
+
+      const { data: session, error: readErr } = await supabase
+        .from('workout_sessions')
+        .select('name, session_rpe, user_id')
+        .eq('id', input.sessionId)
+        .single()
+      if (readErr || !session) throw readErr ?? new Error('Seduta non trovata')
+
+      const row = session as {
+        name: string
+        session_rpe: number | null
+        user_id: string
+      }
+      const durationMin = Math.max(1, Math.round(durationSec / 60))
+      const { data: existing, error: wReadErr } = await supabase
+        .from('workouts')
+        .select('id')
+        .eq('session_id', input.sessionId)
+        .maybeSingle()
+      if (wReadErr) throw wReadErr
+
+      if (existing) {
+        const { error } = await supabase
+          .from('workouts')
+          .update({
+            started_at: startedAt.toISOString(),
+            duration_min: durationMin,
+            notes,
+          })
+          .eq('id', (existing as { id: string }).id)
+        if (error) throw error
+      } else {
+        const { error } = await supabase.from('workouts').insert({
+          user_id: row.user_id ?? user!.id,
+          session_id: input.sessionId,
+          started_at: startedAt.toISOString(),
+          duration_min: durationMin,
+          workout_type: row.name,
+          intensity: rpeToIntensity(row.session_rpe),
+          notes,
+        })
+        if (error) throw error
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['sessions'] })
+      qc.invalidateQueries({ queryKey: ['session'] })
+      qc.invalidateQueries({ queryKey: ['workouts'] })
+      qc.invalidateQueries({ queryKey: ['training-summary'] })
+      qc.invalidateQueries({ queryKey: ['weekly-volume'] })
+    },
   })
 }
 
