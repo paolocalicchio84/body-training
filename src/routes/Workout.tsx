@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { differenceInSeconds, parseISO } from 'date-fns'
 import {
   BarChart3,
   Dumbbell,
@@ -13,6 +12,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { useActiveSession, useStartSession } from '@/features/workout/useSessions'
+import { useWorkoutClock } from '@/features/workout/WorkoutClock'
 import { useTrainingSummary } from '@/features/workout/useWorkoutStats'
 import { formatDuration, formatVolume } from '@/features/workout/types'
 import { RoutinesTab } from './workout/RoutinesTab'
@@ -36,6 +36,7 @@ export function Workout() {
 
   const { data: summary, isError: summaryError } = useTrainingSummary(4)
   const { data: active } = useActiveSession()
+  const { elapsedSec } = useWorkoutClock()
   const start = useStartSession()
 
   async function handleStartFree() {
@@ -48,10 +49,6 @@ export function Workout() {
       )
     }
   }
-
-  const activeElapsed = active
-    ? differenceInSeconds(new Date(), parseISO(active.started_at))
-    : null
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
@@ -105,7 +102,7 @@ export function Workout() {
                 {active.name}
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Iniziato da {formatDuration(activeElapsed)} ·{' '}
+                Tempo contato {formatDuration(elapsedSec)} ·{' '}
                 {active.session_exercises.length} esercizi
               </p>
             </div>

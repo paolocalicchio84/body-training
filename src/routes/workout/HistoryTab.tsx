@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { ChevronDown, ChevronRight, Loader2, Trash2, Trophy } from 'lucide-react'
+import { ChevronDown, ChevronRight, Loader2, Pencil, Trash2, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Label'
+import { Textarea } from '@/components/ui/Textarea'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/Dialog'
-import { useDeleteSession, useSession, useSessions } from '@/features/workout/useSessions'
+import { useDeleteSession, useSession, useSessions, useUpdateCompletedSession } from '@/features/workout/useSessions'
 import {
   SET_TYPE_LABELS,
   formatDuration,
@@ -26,6 +29,7 @@ export function HistoryTab() {
 
   const [expanded, setExpanded] = useState<string | null>(null)
   const [toDelete, setToDelete] = useState<WorkoutSession | null>(null)
+  const [toEdit, setToEdit] = useState<WorkoutSession | null>(null)
 
   async function handleDelete() {
     if (!toDelete) return
@@ -97,6 +101,9 @@ export function HistoryTab() {
                       locale: it,
                     })}
                   </p>
+                  {s.notes && (
+                    <p className="truncate text-xs text-muted-foreground">{s.notes}</p>
+                  )}
                 </div>
                 <div className="hidden shrink-0 gap-4 font-mono text-xs tabular text-muted-foreground sm:flex">
                   <span>{formatDuration(s.duration_sec)}</span>
@@ -105,6 +112,16 @@ export function HistoryTab() {
                   <span>{s.session_rpe != null ? `RPE ${s.session_rpe}` : 'RPE —'}</span>
                 </div>
               </button>
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 shrink-0 text-muted-foreground"
+                onClick={() => setToEdit(s)}
+                aria-label={`Modifica seduta ${s.name}`}
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
               <Button
                 type="button"
                 size="icon"
@@ -128,6 +145,8 @@ export function HistoryTab() {
           </div>
         )
       })}
+
+      <EditSessionDialog session={toEdit} onClose={() => setToEdit(null)} />
 
       <Dialog
         open={!!toDelete}
@@ -168,6 +187,149 @@ export function HistoryTab() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+function toLocalInput(iso: string): string {
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function EditSessionDialog({
+  session,
+  onClose,
+}: {
+  session: WorkoutSession | null
+  onClose: () => void
+}) {
+  const update = useUpdateCompletedSession()
+  const [start, setStart] = useState('')
+  const [minutes, setMinutes] = useState('60')
+  const [notes, setNotes] = useState('')
+
+  useEffect(() => {
+    if (!session) return
+    setStart(toLocalInput(session.started_at))
+    setMinutes(String(Math.max(1, Math.round((session.duration_sec ?? 60) / 60))))
+    setNotes(session.notes ?? '')
+  }, [session])
+
+  const endValue = (() => {
+    const startDate = new Date(start)
+    const mins = Number(minutes)
+    if (!start || Number.isNaN(startDate.getTime()) || !Number.isFinite(mins)) return ''
+    return toLocalInput(new Date(startDate.getTime() + mins * 60_000).toISOString())
+  })()
+
+  function onEndChange(value: string) {
+    const startDate = new Date(start)
+    const endDate = new Date(value)
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) return
+    const mins = Math.round((endDate.getTime() - startDate.getTime()) / 60_000)
+    setMinutes(String(Math.max(1, mins)))
+  }
+
+  async function save() {
+    if (!session) return
+    const startDate = new Date(start)
+    const mins = Number(minutes)
+    if (Number.isNaN(startDate.getTime())) {
+      toast.error('Data di inizio non valida')
+      return
+    }
+    if (!Number.isFinite(mins) || mins < 1) {
+      toast.error('La durata minima è 1 minuto')
+      return
+    }
+    try {
+      await update.mutateAsync({
+        sessionId: session.id,
+        startedAt: startDate.toISOString(),
+        durationSec: Math.round(mins * 60),
+        notes: notes.trim() || null,
+      })
+      toast.success('Seduta aggiornata')
+      onClose()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Modifica non salvata')
+    }
+  }
+
+  return (
+    <Dialog
+      open={!!session}
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Modifica seduta</DialogTitle>
+          <DialogDescription>
+            {session
+              ? `«${session.name}». Correggi inizio, fine, durata e note. La durata vale anche per il bilancio in Home.`
+              : 'Correggi la seduta già chiusa.'}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-start">Inizio</Label>
+            <Input
+              id="edit-start"
+              type="datetime-local"
+              value={start}
+              onChange={(e) => setStart(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-end">Fine</Label>
+            <Input
+              id="edit-end"
+              type="datetime-local"
+              value={endValue}
+              onChange={(e) => onEndChange(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-duration">Durata (minuti)</Label>
+            <Input
+              id="edit-duration"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              step={1}
+              value={minutes}
+              onChange={(e) => setMinutes(e.target.value)}
+              aria-label="Durata in minuti"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="edit-notes">Note</Label>
+            <Textarea
+              id="edit-notes"
+              rows={3}
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Note sulla seduta"
+            />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="outline" onClick={onClose}>
+            Annulla
+          </Button>
+          <Button type="button" onClick={save} disabled={update.isPending}>
+            {update.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Pencil className="h-4 w-4" />
+            )}
+            Salva
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

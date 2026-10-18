@@ -33,6 +33,13 @@ import { ExerciseDetail } from './ExerciseDetail'
 import { resolveExerciseDemoUrl } from '@/lib/exercise-media'
 import { cn } from '@/lib/utils'
 import { useExercise } from '@/features/workout/useExercises'
+import { useRoutine } from '@/features/workout/useRoutines'
+import { useWorkoutClock } from '@/features/workout/WorkoutClock'
+import {
+  formatRestClock,
+  resolveRestSeconds,
+  routineRestForExercise,
+} from '@/features/workout/rest'
 import {
   useActiveSession,
   useAddSessionExercise,
@@ -58,13 +65,12 @@ import {
 import type {
   Exercise,
   LastPerformance,
+  RoutineExercise,
   SessionExercise,
   SessionSet,
   SessionWithExercises,
   SetType,
 } from '@/features/workout/types'
-
-const DEFAULT_REST_SEC = 120
 const EDITABLE_SET_TYPES: SetType[] = ['normal', 'warmup', 'drop', 'failure']
 
 const PR_TYPE_SHORT: Record<DetectedPr['record_type'], string> = {
@@ -131,21 +137,11 @@ function computeTotals(session: SessionWithExercises) {
   return { volumeKg, completedSets }
 }
 
-function useElapsedSeconds(startedAt: string | null): number {
-  const [now, setNow] = useState(() => Date.now())
-  useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 1000)
-    return () => window.clearInterval(id)
-  }, [])
-  if (!startedAt) return 0
-  return Math.max(0, Math.floor((now - new Date(startedAt).getTime()) / 1000))
-}
-
 export function ActiveSession() {
   const navigate = useNavigate()
   const { data: session, isLoading, isError, error } = useActiveSession()
-
-  const elapsedSec = useElapsedSeconds(session?.started_at ?? null)
+  const { elapsedSec } = useWorkoutClock()
+  const { data: routine } = useRoutine(session?.routine_id ?? null)
 
   const exerciseIds = useMemo(
     () => [
@@ -209,6 +205,7 @@ export function ActiveSession() {
         sessionId: session.id,
         notes: finishNotes.trim() || null,
         sessionRpe,
+        durationSec: elapsedSec,
       })
       setFinishOpen(false)
       for (const pr of prs) {
@@ -334,6 +331,7 @@ export function ActiveSession() {
           <ExerciseCard
             key={se.id}
             sessionExercise={se}
+            routineExercises={routine?.routine_exercises}
             last={lastPerformance?.get(se.exercise_id)}
             onRest={startRest}
           />
@@ -535,10 +533,12 @@ function SessionNameInput({
 
 function ExerciseCard({
   sessionExercise,
+  routineExercises,
   last,
   onRest,
 }: {
   sessionExercise: SessionExercise
+  routineExercises: RoutineExercise[] | undefined
   last: LastPerformance | undefined
   onRest: (seconds: number) => void
 }) {
@@ -590,10 +590,15 @@ function ExerciseCard({
     )
   }
 
+  const restSec = resolveRestSeconds(
+    routineRestForExercise(sessionExercise, routineExercises),
+    exercise?.default_rest_sec,
+  )
+
   function handleToggle(set: SessionSet) {
     const completed = !set.completed
     patchSet(set.id, { completed })
-    if (completed) onRest(exercise?.default_rest_sec ?? DEFAULT_REST_SEC)
+    if (completed) onRest(restSec)
   }
 
   function handleAddSet() {
@@ -670,6 +675,8 @@ function ExerciseCard({
             <p className="truncate text-xs text-muted-foreground">
               {exercise ? muscleLabel(exercise.primary_muscle) : '—'}
               {last && ` · ultima volta ${last.sets.length} serie`}
+              {' · Recupero '}
+              {formatRestClock(restSec)}
               {' · '}
               <span className="text-primary/80">demo / dettaglio</span>
             </p>

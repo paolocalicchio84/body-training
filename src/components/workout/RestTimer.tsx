@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Minus, Plus, SkipForward, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { formatRemainingMs, initialRestMs } from '@/features/workout/rest'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -13,15 +14,8 @@ type Props = {
 const STEP_MS = 15_000
 const AUTO_DISMISS_MS = 4_000
 
-function formatMmSs(ms: number): string {
-  const total = Math.max(0, Math.ceil(ms / 1000))
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-}
-
 export function RestTimer({ seconds, onDone, onDismiss }: Props) {
-  const initialMs = Math.max(1000, Math.round(seconds * 1000))
+  const initialMs = initialRestMs(seconds)
   const [totalMs, setTotalMs] = useState(initialMs)
   const [endAt, setEndAt] = useState(() => Date.now() + initialMs)
   const [remainingMs, setRemainingMs] = useState(initialMs)
@@ -103,7 +97,7 @@ export function RestTimer({ seconds, onDone, onDismiss }: Props) {
               almostDone && 'text-warning',
             )}
           >
-            {formatMmSs(finished ? 0 : remainingMs)}
+            {formatRemainingMs(finished ? 0 : remainingMs)}
           </div>
         </div>
 

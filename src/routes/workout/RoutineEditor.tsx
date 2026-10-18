@@ -37,6 +37,7 @@ import {
   muscleLabel,
   type Exercise,
 } from '@/features/workout/types'
+import { formatRestMinutes } from '@/features/workout/rest'
 
 type Props = {
   open: boolean
@@ -463,7 +464,7 @@ export function RoutineEditor({ open, onOpenChange, routineId }: Props) {
                             onChange={(v) => patchRow(r.key, { targetRpe: v })}
                           />
                           <NumberField
-                            label="Recupero (s)"
+                            label={restFieldLabel(r.restSec)}
                             value={r.restSec}
                             min={0}
                             step={15}
@@ -565,6 +566,12 @@ export function RoutineEditor({ open, onOpenChange, routineId }: Props) {
       />
     </>
   )
+}
+
+function restFieldLabel(raw: string): string {
+  const n = toNum(raw)
+  if (n == null || n <= 0) return 'Recupero (s)'
+  return `Recupero (s) · ${formatRestMinutes(n)}`
 }
 
 function NumberField({
