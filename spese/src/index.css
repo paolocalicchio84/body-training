@@ -137,6 +137,9 @@ h1, h2, h3 {
 
 h1 { font-size: 1.85rem; line-height: 1.1; }
 
+.month-head { display: grid; gap: 6px; }
+.month-head p { margin: 0; color: var(--muted); }
+
 h2 { font-size: 1.2rem; line-height: 1.2; }
 
 .row {

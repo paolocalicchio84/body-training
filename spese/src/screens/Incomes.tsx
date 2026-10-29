@@ -96,9 +96,9 @@ export function Incomes() {
 
   return (
     <form className="stack" onSubmit={(event) => void onSubmit(event)}>
-      <div>
-        <h1>Redditi</h1>
-        <p className="meta">{title}</p>
+      <div className="month-head">
+        <h1>{title}</h1>
+        <p>Queste cifre valgono solo per questo mese.</p>
       </div>
       <div className="cols">
         {PERSON_IDS.map((personId) => {

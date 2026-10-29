@@ -55,7 +55,9 @@ function Shell() {
     return <p className="boot">{error}</p>
   }
 
-  const monthPath = `/mese/${viewMonthId}`
+  const routeMonth = /^\/mese\/(\d{4}-\d{2})/.exec(location.pathname)?.[1]
+  const activeMonthId = routeMonth && isMonthId(routeMonth) ? routeMonth : viewMonthId
+  const monthPath = `/mese/${activeMonthId}`
   const homeMatch = /^\/mese\/(\d{4}-\d{2})$/.exec(location.pathname)
   const showAdd = Boolean(homeMatch && months.some((month) => month.id === homeMatch[1]))
   return (
