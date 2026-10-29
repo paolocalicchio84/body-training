@@ -5,9 +5,8 @@ import { useStore } from '../store.tsx'
 import { Errors, useTitle } from '../ui.tsx'
 
 export function Categories() {
-  const { categories, expenses, addCategory, renameCategory, setCategoryArchived } = useStore()
+  const { categories, addCategory, renameCategory, setCategoryArchived } = useStore()
   const sorted = sortCategories(categories)
-  const used = new Set(expenses.map((expense) => expense.categoryId))
   const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
@@ -35,11 +34,8 @@ export function Categories() {
 
   return (
     <div className="stack">
-      <div>
-        <h1>Categorie</h1>
-        <p className="lede">Ogni spesa ne ha una. Una categoria già usata si rinomina o si archivia, non si cancella.</p>
-      </div>
-      <form className="sheet stack" onSubmit={(event) => void onAdd(event)}>
+      <h1>Categorie</h1>
+      <form className="stack" onSubmit={(event) => void onAdd(event)}>
         <label>
           <span>Nuova categoria</span>
           <input value={name} onChange={(event) => setName(event.target.value)} maxLength={40} />
@@ -49,13 +45,12 @@ export function Categories() {
           Aggiungi categoria
         </button>
       </form>
-      <section className="sheet">
-        {active.length === 0 ? <p>Nessuna categoria attiva.</p> : null}
+      <section>
+        {active.length === 0 ? <p className="muted">Nessuna.</p> : null}
         {active.map((category) => (
           <CategoryRow
             key={category.id}
             category={category}
-            used={used.has(category.id)}
             categories={categories}
             onRename={renameCategory}
             onArchive={setCategoryArchived}
@@ -63,14 +58,12 @@ export function Categories() {
         ))}
       </section>
       {archived.length > 0 ? (
-        <section className="sheet">
+        <section>
           <h2>Archiviate</h2>
-          <p className="meta">Non compaiono nelle spese nuove. Le spese vecchie le conservano.</p>
           {archived.map((category) => (
             <CategoryRow
               key={category.id}
               category={category}
-              used={used.has(category.id)}
               categories={categories}
               onRename={renameCategory}
               onArchive={setCategoryArchived}
@@ -84,13 +77,11 @@ export function Categories() {
 
 function CategoryRow({
   category,
-  used,
   categories,
   onRename,
   onArchive,
 }: {
   category: Category
-  used: boolean
   categories: Category[]
   onRename: (id: string, name: string) => Promise<void>
   onArchive: (id: string, archived: boolean) => Promise<void>
@@ -111,7 +102,6 @@ function CategoryRow({
       ) : (
         <strong>{category.name}</strong>
       )}
-      <span className="badge">{used ? 'Usata' : 'Non usata'}</span>
       {error ? <Errors messages={[error]} /> : null}
       <div className="tools">
         {editing ? (

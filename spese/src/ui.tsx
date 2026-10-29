@@ -97,11 +97,7 @@ export function OpenMonthCard({
   return (
     <section className="sheet stack">
       <h1>{title}</h1>
-      <p>
-        {title} non è ancora aperto. Un mese nuovo nasce vuoto: stipendio, buoni, note spese ed extra non si
-        copiano dal mese precedente. Categorie, valore dei buoni e mutuo restano quelli già definiti: il mutuo
-        non è un campo del mese.
-      </p>
+      <p className="hint">Mese vuoto.</p>
       <button
         className="primary"
         type="button"

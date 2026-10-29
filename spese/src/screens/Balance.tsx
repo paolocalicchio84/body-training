@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { formatDateLong, formatMonthTitle, isMonthId, isValidDate, todayIso } from '../dates.ts'
 import { formatAmountInput, formatEuro, parseMoneyToCents } from '../money.ts'
 import { PEOPLE, PERSON_IDS, createId, type PersonId, type Settlement } from '../model.ts'
@@ -22,22 +22,20 @@ export function Balance() {
   return (
     <div className="stack">
       <div>
-        <h1>Saldo e regolamento</h1>
-        <p className="lede">{title}. Un versamento non è una spesa e non ha categoria.</p>
+        <h1>Saldo</h1>
+        <p className="meta">{title}</p>
       </div>
       <Phrase computation={computation} />
-      {!computation.calculable ? (
-        <p>
-          Nessun saldo in euro e nessun versamento nuovo, finché i redditi di entrambi non sono salvati e almeno un
-          peso è positivo. I versamenti già registrati restano.
-        </p>
-      ) : null}
+      {!computation.calculable ? <p className="hint">Servono i redditi.</p> : null}
       <div className="figures">
         {PERSON_IDS.map((personId) => {
           const person = computation.people[personId]
           return (
             <article className="person" key={personId}>
               <h2>{PEOPLE[personId].name}</h2>
+              <p className="glance">
+                <EuroValue cents={person.balanceCents} />
+              </p>
               <dl>
                 <dt>Pagato</dt>
                 <dd>{formatEuro(person.paidCents)}</dd>
@@ -47,10 +45,6 @@ export function Balance() {
                 <dd>{formatEuro(person.sentCents)}</dd>
                 <dt>Ricevuto</dt>
                 <dd>{formatEuro(person.receivedCents)}</dd>
-                <dt>Saldo</dt>
-                <dd>
-                  <EuroValue cents={person.balanceCents} />
-                </dd>
               </dl>
             </article>
           )
@@ -58,8 +52,8 @@ export function Balance() {
       </div>
 
       <section className="stack">
-        <h2>Versamenti del mese</h2>
-        {month.settlements.length === 0 ? <p className="muted">Nessun versamento registrato.</p> : null}
+        <h2>Versamenti</h2>
+        {month.settlements.length === 0 ? <p className="muted">Nessuno.</p> : null}
         {month.settlements.map((settlement) =>
           editingId === settlement.id ? (
             <SettlementEditor key={settlement.id} settlement={settlement} onClose={() => setEditingId(null)} />
@@ -99,12 +93,7 @@ export function Balance() {
           to={computation.creditor}
         />
       ) : null}
-      {computation.calculable && computation.openDebtCents === 0 ? (
-        <p>Non c’è un debito aperto. Un versamento già registrato si può ancora correggere o annullare.</p>
-      ) : null}
-      <Link className="button ghost" to={`/mese/${monthId}`}>
-        Torna al mese
-      </Link>
+      {computation.calculable && computation.openDebtCents === 0 ? <p className="hint">In pari.</p> : null}
     </div>
   )
 }
@@ -164,21 +153,19 @@ function NewSettlement({
 
   return (
     <form className="sheet stack" onSubmit={(event) => void onSubmit(event)}>
-      <h2>Registra un versamento</h2>
-      <p>
-        {PEOPLE[from].name} versa a {PEOPLE[to].name}. L’importo proposto è {formatEuro(amountCents)} e chiude il
-        debito. Per un acconto inserisci una cifra minore.
-      </p>
+      <h2>
+        {PEOPLE[from].name} a {PEOPLE[to].name}
+      </h2>
       <Field label="Importo">
         <input inputMode="decimal" autoComplete="off" value={amount} onChange={(event) => setAmount(event.target.value)} />
       </Field>
       {parsed !== null && parsed > amountCents ? (
         <p className="hint">L’importo supera il debito aperto: dopo il versamento il saldo cambia segno.</p>
       ) : null}
-      <Field label="Data" hint={isValidDate(date) ? formatDateLong(date) : undefined}>
+      <Field label="Data">
         <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
       </Field>
-      <Field label="Nota" hint="Facoltativa.">
+      <Field label="Nota">
         <input value={note} maxLength={200} onChange={(event) => setNote(event.target.value)} />
       </Field>
       <Errors messages={errors} />
@@ -231,7 +218,7 @@ function SettlementEditor({ settlement, onClose }: { settlement: Settlement; onC
       <Field label="Importo">
         <input inputMode="decimal" autoComplete="off" value={amount} onChange={(event) => setAmount(event.target.value)} />
       </Field>
-      <Field label="Data" hint={isValidDate(date) ? formatDateLong(date) : undefined}>
+      <Field label="Data">
         <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
       </Field>
       <div className="cols">

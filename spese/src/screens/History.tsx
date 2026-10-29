@@ -17,27 +17,21 @@ export function History() {
 
   return (
     <div className="stack">
-      <div>
-        <h1>Storico</h1>
-        <p className="lede">Dal mese più recente. Un mese senza spese e senza redditi non compare.</p>
-      </div>
-      {ordered.length === 0 ? <p>Nessun mese con spese o redditi.</p> : null}
+      <h1>Storico</h1>
+      {ordered.length === 0 ? <p className="muted">Nessun mese.</p> : null}
       {ordered.map((monthId) => {
         const computation = computationFor(store, monthId)
         return (
           <Link className="month-link" key={monthId} to={`/mese/${monthId}`}>
             <div className="row spread">
               <strong>{formatMonthTitle(monthId)}</strong>
-              <span className={`badge ${badgeTone(computation)}`}>{statusLabel(computation)}</span>
+              <span className="amount">{formatEuro(computation.totalExpensesCents)}</span>
             </div>
-            <p className="meta">Totale spese {formatEuro(computation.totalExpensesCents)}</p>
-            {computation.calculable && computation.openDebtCents ? (
-              <p className="meta">{computation.phrase}</p>
-            ) : null}
+            <p className={`meta ${badgeTone(computation)}`}>{statusLabel(computation)}</p>
           </Link>
         )
       })}
-      <section className="sheet stack">
+      <section className="stack">
         <h2>Apri un mese</h2>
         <MonthChooser
           onChoose={async (monthId) => {
@@ -46,10 +40,7 @@ export function History() {
           }}
         />
       </section>
-      <p className="warning">
-        I dati restano solo su questo dispositivo. Se cancelli i dati del browser o cambi telefono, questa bozza si
-        perde. Non c’è una copia di sicurezza.
-      </p>
+      <p className="warning">Solo su questo telefono. Se cancelli i dati del browser, si perdono.</p>
     </div>
   )
 }

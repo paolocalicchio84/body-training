@@ -1,5 +1,4 @@
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { quotasForAmount } from '../calc.ts'
 import { formatDateLong, formatMonthTitle, isMonthId } from '../dates.ts'
 import { formatEuro } from '../money.ts'
 import { PEOPLE, PERSON_IDS } from '../model.ts'
@@ -38,73 +37,43 @@ export function Home() {
 
   return (
     <div className="stack">
-      <div>
-        <h1>{title}</h1>
-        <p className="lede">Spese comuni divise in proporzione al reddito netto del mese.</p>
-      </div>
+      <h1>{title}</h1>
 
       {missing.length > 0 ? (
-        <section className="sheet stack">
-          <p>
-            {missing.length === 2
-              ? 'Mancano i redditi di Paolo e di Cassiana.'
-              : `Manca il reddito di ${PEOPLE[missing[0]].name}.`}{' '}
-            Le spese già inserite restano in lista, senza quote.
-          </p>
-          <Link className="button secondary" to={`/mese/${monthId}/redditi`}>
-            Compila i redditi
-          </Link>
-        </section>
+        <Link className="text-link" to={`/mese/${monthId}/redditi`}>
+          {missing.length === 2 ? 'Inserisci i redditi' : `Manca il reddito di ${PEOPLE[missing[0]].name}`}
+        </Link>
       ) : null}
 
-      {computation.reason === 'no-positive-weight' ? (
-        <p className="hint">
-          I redditi sono salvati, ma nessun peso è positivo. Un netto negativo resta visibile e non entra nel
-          saldo.
-        </p>
-      ) : null}
+      {computation.reason === 'no-positive-weight' ? <p className="hint">Nessun peso positivo.</p> : null}
 
       <Phrase computation={computation} />
+      <p className="total">Spese {formatEuro(computation.totalExpensesCents)}</p>
 
-      <p className="total">Totale spese {formatEuro(computation.totalExpensesCents)}</p>
-
-      <div className="figures">
+      <div className="pair">
         {PERSON_IDS.map((personId) => {
           const person = computation.people[personId]
           return (
             <article className="person" key={personId}>
               <h2>{PEOPLE[personId].name}</h2>
-              <dl>
-                <dt>Reddito netto</dt>
-                <dd>{person.saved ? formatEuro(person.netCents ?? 0) : 'Mancante'}</dd>
-                <dt>Peso</dt>
-                <dd>{person.saved ? formatEuro(person.weightCents ?? 0) : 'Mancante'}</dd>
-                <dt>Pagato</dt>
-                <dd>{formatEuro(person.paidCents)}</dd>
-                <dt>Dovuto</dt>
-                <dd>{person.owedCents === null ? '—' : formatEuro(person.owedCents)}</dd>
-                <dt>Saldo</dt>
-                <dd>
-                  <EuroValue cents={person.balanceCents} />
-                </dd>
-              </dl>
+              <p className="glance">
+                <EuroValue cents={person.balanceCents} />
+              </p>
+              <p className="meta">Pagato {formatEuro(person.paidCents)}</p>
             </article>
           )
         })}
       </div>
 
-      <div className="row">
-        <Link className="button secondary" to={`/mese/${monthId}/saldo`}>
-          Saldo e regolamento
-        </Link>
-      </div>
+      <Link className="text-link" to={`/mese/${monthId}/saldo`}>
+        Regola il saldo
+      </Link>
 
       <section className="stack">
-        <h2>Ultime spese</h2>
-        {month.expenses.length === 0 ? <p className="muted">Nessuna spesa in questo mese.</p> : null}
+        <h2>Spese</h2>
+        {month.expenses.length === 0 ? <p className="muted">Nessuna spesa.</p> : null}
         {month.expenses.map((expense) => {
           const category = categories.find((item) => item.id === expense.categoryId)
-          const quotas = quotasForAmount(expense.amountCents, computation)
           return (
             <article className="expense" key={expense.id}>
               <Link to={`/spesa/${expense.id}`}>
@@ -113,13 +82,8 @@ export function Home() {
                   <span className="amount">{formatEuro(expense.amountCents)}</span>
                 </div>
                 <p className="meta">
-                  {formatDateLong(expense.date)} · pagata da {PEOPLE[expense.paidBy].name}
+                  {formatDateLong(expense.date)} · {PEOPLE[expense.paidBy].name}
                   {expense.note ? ` · ${expense.note}` : ''}
-                </p>
-                <p className="meta">
-                  {quotas
-                    ? `Paolo ${formatEuro(quotas.paolo)} · Cassiana ${formatEuro(quotas.cassiana)}`
-                    : 'Quota non calcolabile'}
                 </p>
               </Link>
             </article>
@@ -127,16 +91,14 @@ export function Home() {
         })}
       </section>
 
-      <details className="sheet">
-        <summary>Scegli un mese</summary>
-        <div className="stack" style={{ marginTop: 12 }}>
-          <MonthChooser
-            onChoose={async (next) => {
-              await openMonth(next)
-              navigate(`/mese/${next}`)
-            }}
-          />
-        </div>
+      <details>
+        <summary>Altro mese</summary>
+        <MonthChooser
+          onChoose={async (next) => {
+            await openMonth(next)
+            navigate(`/mese/${next}`)
+          }}
+        />
       </details>
     </div>
   )

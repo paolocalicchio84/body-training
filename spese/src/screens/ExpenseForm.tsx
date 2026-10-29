@@ -2,14 +2,7 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { quotasForAmount } from '../calc.ts'
 import { sortCategories } from '../db.ts'
-import {
-  formatDateLong,
-  formatMonthTitle,
-  isMonthId,
-  isValidDate,
-  monthIdFromDate,
-  todayIso,
-} from '../dates.ts'
+import { isMonthId, isValidDate, monthIdFromDate, todayIso } from '../dates.ts'
 import { formatAmountInput, formatEuro, parseMoneyToCents } from '../money.ts'
 import { PEOPLE, PERSON_IDS, createId, type PersonId } from '../model.ts'
 import { useMonthData, useStore } from '../store.tsx'
@@ -133,14 +126,11 @@ function ExpenseEditor({
 
   return (
     <form className="stack" onSubmit={(event) => void onSubmit(event)}>
-      <div>
-        <h1>{expense ? 'Correggi spesa' : 'Nuova spesa'}</h1>
-        <p className="lede">Chi ha pagato parte dal profilo attivo e si può cambiare.</p>
-      </div>
-      <Field label="Importo" hint="Maggiore di 0, al massimo due decimali. Minimo 0,01 €.">
+      <h1>{expense ? 'Correggi spesa' : 'Nuova spesa'}</h1>
+      <Field label="Importo">
         <input inputMode="decimal" autoComplete="off" value={amount} onChange={(event) => setAmount(event.target.value)} />
       </Field>
-      <Field label="Data" hint={isValidDate(date) ? formatDateLong(date) : 'Giorno in cui risulta pagata.'}>
+      <Field label="Data">
         <input type="date" value={date} onChange={(event) => onDate(event.target.value)} required />
       </Field>
       <Field label="Categoria">
@@ -175,29 +165,21 @@ function ExpenseEditor({
           ))}
         </div>
       </fieldset>
-      <div className="field">
-        <span>Mese di ripartizione</span>
-        <MonthField
-          value={monthId}
-          onChange={(next) => {
-            setMonthTouched(true)
-            setMonthId(next)
-          }}
-        />
-        <small className="hint">
-          {isMonthId(monthId)
-            ? `${formatMonthTitle(monthId)}. Proposto dal mese della data, si può cambiare.`
-            : 'Proposto dal mese della data, si può cambiare.'}
-        </small>
-      </div>
-      <Field label="Nota" hint="Facoltativa, testo breve.">
+      <MonthField
+        value={monthId}
+        onChange={(next) => {
+          setMonthTouched(true)
+          setMonthId(next)
+        }}
+      />
+      <Field label="Nota">
         <textarea value={note} maxLength={200} onChange={(event) => setNote(event.target.value)} />
       </Field>
-      <p className="meta">
-        {quotas
-          ? `Con i redditi di ${formatMonthTitle(monthId)}: Paolo ${formatEuro(quotas.paolo)}, Cassiana ${formatEuro(quotas.cassiana)}.`
-          : 'In questo mese la ripartizione non è calcolabile. La spesa si salva comunque, senza quota finché i redditi non bastano.'}
-      </p>
+      {quotas ? (
+        <p className="meta">
+          Paolo {formatEuro(quotas.paolo)} · Cassiana {formatEuro(quotas.cassiana)}
+        </p>
+      ) : null}
       <Errors messages={errors} />
       <div className="row">
         <button className="primary" type="submit" disabled={pending}>

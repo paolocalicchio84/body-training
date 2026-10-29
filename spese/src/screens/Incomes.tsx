@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
 import { computeMonth, readIncomeDraft, type IncomeDraft } from '../calc.ts'
 import { formatMonthTitle, isMonthId } from '../dates.ts'
 import { formatAmountInput, formatEuro, formatPercentHundredths } from '../money.ts'
@@ -88,11 +88,7 @@ export function Incomes() {
     try {
       await saveMonthIncomes(monthId, payload)
       const missing = PERSON_IDS.filter((personId) => !payload[personId]).map((personId) => PEOPLE[personId].name)
-      setMessage(
-        missing.length === 0
-          ? 'Redditi salvati. Le quote delle spese di questo mese sono aggiornate.'
-          : `Reddito salvato. Manca ancora il reddito di ${missing.join(' e di ')}.`,
-      )
+      setMessage(missing.length === 0 ? 'Salvato.' : `Manca ancora ${missing.join(' e ')}.`)
     } finally {
       setPending(false)
     }
@@ -102,19 +98,17 @@ export function Incomes() {
     <form className="stack" onSubmit={(event) => void onSubmit(event)}>
       <div>
         <h1>Redditi</h1>
-        <p className="lede">
-          {title}. Il valore del buono è fisso: Paolo 4,50 €, Cassiana 10,00 €. Il mutuo è fisso e non si
-          modifica: Paolo 291,26 €, Cassiana 425,67 €.
-        </p>
+        <p className="meta">{title}</p>
       </div>
       <div className="cols">
         {PERSON_IDS.map((personId) => {
           const read = reads[personId]
           const draft = drafts[personId]
+          const unit = formatEuro(PEOPLE[personId].voucherUnitCents)
           return (
             <section className="person stack" key={personId}>
               <h2>{PEOPLE[personId].name}</h2>
-              <Field label="Stipendio del mese" hint="Obbligatorio al salvataggio. Può essere 0.">
+              <Field label="Stipendio">
                 <input
                   inputMode="decimal"
                   autoComplete="off"
@@ -122,7 +116,7 @@ export function Incomes() {
                   onChange={(event) => update(personId, 'salary', event.target.value)}
                 />
               </Field>
-              <Field label="Numero di buoni pasto" hint="Intero, zero compreso. Vuoto al salvataggio vale 0.">
+              <Field label="Buoni" hint={`${unit} l’uno${read.voucherCents === null ? '' : ` · ${formatEuro(read.voucherCents)}`}`}>
                 <input
                   inputMode="numeric"
                   autoComplete="off"
@@ -130,13 +124,7 @@ export function Incomes() {
                   onChange={(event) => update(personId, 'vouchers', event.target.value)}
                 />
               </Field>
-              <Field label="Valore unitario">
-                <div className="readonly">{formatEuro(PEOPLE[personId].voucherUnitCents)}</div>
-              </Field>
-              <Field label="Valore buoni">
-                <div className="readonly">{read.voucherCents === null ? '—' : formatEuro(read.voucherCents)}</div>
-              </Field>
-              <Field label="Note spese già presenti sullo stipendio" hint="Vuoto al salvataggio vale 0.">
+              <Field label="Note spese">
                 <input
                   inputMode="decimal"
                   autoComplete="off"
@@ -144,10 +132,11 @@ export function Incomes() {
                   onChange={(event) => update(personId, 'notes', event.target.value)}
                 />
               </Field>
-              <Field label="Mutuo" hint="Fisso per la persona. Si vede in ogni mese e non si modifica.">
-                <div className="readonly">{formatEuro(PEOPLE[personId].mortgageCents)}</div>
-              </Field>
-              <Field label="Guadagni extra" hint="Vuoto al salvataggio vale 0.">
+              <p className="stat">
+                <span>Mutuo</span>
+                <strong>{formatEuro(PEOPLE[personId].mortgageCents)}</strong>
+              </p>
+              <Field label="Extra">
                 <input
                   inputMode="decimal"
                   autoComplete="off"
@@ -155,39 +144,32 @@ export function Incomes() {
                   onChange={(event) => update(personId, 'extra', event.target.value)}
                 />
               </Field>
-              <Field label="Reddito netto">
-                <div className="readonly">
+              <p className="result">
+                <span>Netto</span>
+                <strong>
                   {read.salaryEmpty ? 'Mancante' : read.netCents === null ? '—' : formatEuro(read.netCents)}
-                </div>
-              </Field>
-              <p className="meta">Peso {read.weightCents === null ? '—' : formatEuro(read.weightCents)}</p>
+                </strong>
+              </p>
+              {read.weightCents !== null && read.netCents !== null && read.weightCents !== read.netCents ? (
+                <p className="meta">Peso {formatEuro(read.weightCents)}</p>
+              ) : null}
             </section>
           )
         })}
       </div>
 
-      <section className="sheet">
-        {preview.calculable && preview.weightSumCents !== null && preview.percents ? (
-          <p>
-            Somma dei pesi {formatEuro(preview.weightSumCents)}. Paolo{' '}
-            {formatPercentHundredths(preview.percents.paolo)}. Cassiana{' '}
-            {formatPercentHundredths(preview.percents.cassiana)}.
-          </p>
-        ) : (
-          <p>Ripartizione non calcolabile finché non c’è almeno un peso positivo e i redditi di entrambi.</p>
-        )}
-      </section>
+      {preview.calculable && preview.percents ? (
+        <p className="meta">
+          Paolo {formatPercentHundredths(preview.percents.paolo)} · Cassiana{' '}
+          {formatPercentHundredths(preview.percents.cassiana)}
+        </p>
+      ) : null}
 
       <Errors messages={errors} />
       {message ? <p className="status" role="status">{message}</p> : null}
-      <div className="row">
-        <button className="primary" type="submit" disabled={pending}>
-          Salva i redditi del mese
-        </button>
-        <Link className="button ghost" to={`/mese/${monthId}`}>
-          Torna al mese
-        </Link>
-      </div>
+      <button className="primary" type="submit" disabled={pending}>
+        Salva
+      </button>
     </form>
   )
 }
