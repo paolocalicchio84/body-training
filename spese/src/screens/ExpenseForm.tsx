@@ -63,7 +63,7 @@ function ExpenseEditor({
   const [date, setDate] = useState(expense?.date ?? todayIso())
   const [paidBy, setPaidBy] = useState<PersonId>(expense?.paidBy ?? profile)
   const [categoryId, setCategoryId] = useState(expense?.categoryId ?? '')
-  const [monthId, setMonthId] = useState(expense?.monthId ?? monthIdFromDate(todayIso()) ?? originMonthId)
+  const [monthId, setMonthId] = useState(expense?.monthId ?? originMonthId)
   const [monthTouched, setMonthTouched] = useState(
     Boolean(expense && monthIdFromDate(expense.date) !== expense.monthId),
   )
@@ -77,7 +77,7 @@ function ExpenseEditor({
 
   function onDate(value: string) {
     setDate(value)
-    if (!monthTouched) {
+    if (expense && !monthTouched) {
       const proposed = monthIdFromDate(value)
       if (proposed) setMonthId(proposed)
     }
@@ -165,13 +165,15 @@ function ExpenseEditor({
           ))}
         </div>
       </fieldset>
-      <MonthField
-        value={monthId}
-        onChange={(next) => {
-          setMonthTouched(true)
-          setMonthId(next)
-        }}
-      />
+      {expense ? (
+        <MonthField
+          value={monthId}
+          onChange={(next) => {
+            setMonthTouched(true)
+            setMonthId(next)
+          }}
+        />
+      ) : null}
       <Field label="Nota">
         <textarea value={note} maxLength={200} onChange={(event) => setNote(event.target.value)} />
       </Field>
