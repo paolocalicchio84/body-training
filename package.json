@@ -9,7 +9,11 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "node --experimental-strip-types --test src/features/workout/rest.test.ts src/features/workout/sessionClock.test.ts",
-    "preview:ui": "vite --config vite.preview.config.ts"
+    "preview:ui": "vite --config vite.preview.config.ts",
+    "spese:dev": "npm run dev --prefix spese",
+    "spese:build": "npm run build --prefix spese",
+    "spese:preview": "npm run preview --prefix spese",
+    "spese:test": "npm test --prefix spese"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
