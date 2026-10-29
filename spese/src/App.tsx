@@ -61,6 +61,11 @@ function Shell() {
   return (
     <div className={showAdd ? 'app with-add' : 'app'}>
       <header className="top">
+        {homeMatch ? null : (
+          <Link className="home-back" to={monthPath}>
+            ← Home
+          </Link>
+        )}
         <Link className="brand" to={monthPath}>
           <strong>Spese di coppia</strong>
           <span>Paolo e Cassiana</span>
