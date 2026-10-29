@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { BrowserRouter } from 'react-router-dom'
 import { isMonthId } from './dates.ts'
 import { PEOPLE, type PersonId } from './model.ts'
@@ -39,7 +39,7 @@ function HomeRedirect() {
 }
 
 function Shell() {
-  const { status, error, profile, setProfile, viewMonthId, setViewMonthId } = useStore()
+  const { status, error, profile, setProfile, viewMonthId, setViewMonthId, months } = useStore()
   const location = useLocation()
 
   useEffect(() => {
@@ -56,13 +56,15 @@ function Shell() {
   }
 
   const monthPath = `/mese/${viewMonthId}`
+  const homeMatch = /^\/mese\/(\d{4}-\d{2})$/.exec(location.pathname)
+  const showAdd = Boolean(homeMatch && months.some((month) => month.id === homeMatch[1]))
   return (
-    <div className="app">
+    <div className={showAdd ? 'app with-add' : 'app'}>
       <header className="top">
-        <div className="brand">
+        <Link className="brand" to={monthPath}>
           <strong>Spese di coppia</strong>
           <span>Paolo e Cassiana</span>
-        </div>
+        </Link>
         <div className="switch" role="radiogroup" aria-label="Profilo attivo">
           {(['paolo', 'cassiana'] as const).map((personId) => (
             <ProfileButton
@@ -77,15 +79,24 @@ function Shell() {
       <main className="main">
         <Outlet />
       </main>
-      <nav className="nav" aria-label="Sezioni">
-        <NavLink to={monthPath} end>
-          Mese
-        </NavLink>
-        <NavLink to={`${monthPath}/redditi`}>Redditi</NavLink>
-        <NavLink to={`${monthPath}/saldo`}>Saldo</NavLink>
-        <NavLink to="/storico">Storico</NavLink>
-        <NavLink to="/categorie">Categorie</NavLink>
-      </nav>
+      <div className="dock">
+        <nav className="dock-menu" aria-label="Menu">
+          <NavLink to={`${monthPath}/redditi`} end>
+            Redditi
+          </NavLink>
+          <NavLink to="/storico" end>
+            Storico
+          </NavLink>
+          <NavLink to="/categorie" end>
+            Categorie
+          </NavLink>
+        </nav>
+        {showAdd && homeMatch ? (
+          <Link className="dock-add" to={`/mese/${homeMatch[1]}/spesa/nuova`}>
+            Aggiungi una spesa
+          </Link>
+        ) : null}
+      </div>
     </div>
   )
 }

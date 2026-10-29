@@ -38,14 +38,9 @@ export function Home() {
 
   return (
     <div className="stack">
-      <div className="stack">
-        <div>
-          <h1>{title}</h1>
-          <p className="lede">Spese comuni divise in proporzione al reddito netto del mese.</p>
-        </div>
-        <Link className="button primary" to={`/mese/${monthId}/spesa/nuova`}>
-          Inserisci una spesa
-        </Link>
+      <div>
+        <h1>{title}</h1>
+        <p className="lede">Spese comuni divise in proporzione al reddito netto del mese.</p>
       </div>
 
       {missing.length > 0 ? (
