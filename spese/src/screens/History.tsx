@@ -18,19 +18,24 @@ export function History() {
   return (
     <div className="stack">
       <h1>Storico</h1>
-      {ordered.length === 0 ? <p className="muted">Nessun mese.</p> : null}
-      {ordered.map((monthId) => {
-        const computation = computationFor(store, monthId)
-        return (
-          <Link className="month-link" key={monthId} to={`/mese/${monthId}`}>
-            <div className="row spread">
-              <strong>{formatMonthTitle(monthId)}</strong>
-              <span className="amount">{formatEuro(computation.totalExpensesCents)}</span>
-            </div>
-            <p className={`meta ${badgeTone(computation)}`}>{statusLabel(computation)}</p>
-          </Link>
-        )
-      })}
+      {ordered.length === 0 ? <p className="muted">Ancora nessun mese con spese o redditi.</p> : null}
+      {ordered.length > 0 ? (
+        <div className="list">
+          {ordered.map((monthId) => {
+            const computation = computationFor(store, monthId)
+            return (
+              <Link className="month-link" key={monthId} to={`/mese/${monthId}`}>
+                <strong>{formatMonthTitle(monthId)}</strong>
+                <span className="amount">{formatEuro(computation.totalExpensesCents)}</span>
+                <span className="chev" aria-hidden="true">
+                  ›
+                </span>
+                <p className={`meta ${badgeTone(computation)}`}>{statusLabel(computation)}</p>
+              </Link>
+            )
+          })}
+        </div>
+      ) : null}
       <section className="stack">
         <h2>Apri un mese</h2>
         <MonthChooser

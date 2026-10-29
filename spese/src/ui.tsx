@@ -22,7 +22,8 @@ export function Errors({ messages }: { messages: string[] }) {
 
 export function Phrase({ computation }: { computation: MonthComputation }) {
   const tone = !computation.calculable ? 'blocked' : computation.openDebtCents === 0 ? 'even' : 'debt'
-  return <p className={`phrase ${tone}`}>{computation.phrase}</p>
+  const text = computation.phrase.replace(/ €/g, '\u00a0€')
+  return <p className={`phrase ${tone}`}>{text}</p>
 }
 
 export function EuroValue({ cents }: { cents: number | null }) {
@@ -56,7 +57,7 @@ export function MonthChooser({
 
   return (
     <form className="stack" onSubmit={onSubmit}>
-      <div className="cols">
+      <div className="split">
         <label>
           <span>Mese</span>
           <select value={month} onChange={(event) => setMonth(event.target.value)}>
@@ -95,7 +96,7 @@ export function OpenMonthCard({
   const title = formatMonthTitle(monthId)
   const [pending, setPending] = useState(false)
   return (
-    <section className="sheet stack">
+    <section className="panel stack">
       <h1>{title}</h1>
       <p className="hint">Mese vuoto.</p>
       <button
@@ -168,7 +169,7 @@ export function MonthField({ value, onChange }: { value: string; onChange: (mont
   }, [yearPart])
 
   return (
-    <div className="cols">
+    <div className="split">
       <label>
         <span>Mese</span>
         <select

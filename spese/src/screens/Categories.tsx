@@ -46,7 +46,7 @@ export function Categories() {
         </button>
       </form>
       <section>
-        {active.length === 0 ? <p className="muted">Nessuna.</p> : null}
+        {active.length === 0 ? <p className="muted">Nessuna categoria attiva.</p> : null}
         {active.map((category) => (
           <CategoryRow
             key={category.id}
@@ -91,7 +91,7 @@ function CategoryRow({
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <div className="category">
+    <div className={category.archived ? 'category archived' : 'category'}>
       {editing ? (
         <input
           value={name}
@@ -100,7 +100,7 @@ function CategoryRow({
           aria-label={`Nome di ${category.name}`}
         />
       ) : (
-        <strong>{category.name}</strong>
+        <strong className="category-name">{category.name}</strong>
       )}
       {error ? <Errors messages={[error]} /> : null}
       <div className="tools">

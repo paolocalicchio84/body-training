@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Link, Navigate, useParams } from 'react-router-dom'
 import { formatDateLong, formatMonthTitle, isMonthId, isValidDate, todayIso } from '../dates.ts'
 import { formatAmountInput, formatEuro, parseMoneyToCents } from '../money.ts'
 import { PEOPLE, PERSON_IDS, createId, type PersonId, type Settlement } from '../model.ts'
@@ -21,17 +21,33 @@ export function Balance() {
 
   return (
     <div className="stack">
-      <div>
+      <div className="month-head">
         <h1>Saldo</h1>
-        <p className="meta">{title}</p>
+        <p>{title}</p>
       </div>
-      <Phrase computation={computation} />
-      {!computation.calculable ? <p className="hint">Servono i redditi.</p> : null}
+      {computation.reason === 'missing-income' ? (
+        <Link className="banner" to={`/mese/${monthId}/redditi`}>
+          Inserisci i redditi di questo mese.
+        </Link>
+      ) : (
+        <Phrase computation={computation} />
+      )}
+      {computation.reason === 'no-positive-weight' ? (
+        <p className="hint">Con questi netti non si può dividere.</p>
+      ) : null}
+      {computation.calculable && computation.openDebtCents && computation.debtor && computation.creditor ? (
+        <NewSettlement
+          monthId={monthId}
+          amountCents={computation.openDebtCents}
+          from={computation.debtor}
+          to={computation.creditor}
+        />
+      ) : null}
       <div className="figures">
         {PERSON_IDS.map((personId) => {
           const person = computation.people[personId]
           return (
-            <article className="person" key={personId}>
+            <article className={`person panel ${personId}`} key={personId}>
               <h2>{PEOPLE[personId].name}</h2>
               <p className="glance">
                 <EuroValue cents={person.balanceCents} />
@@ -53,7 +69,7 @@ export function Balance() {
 
       <section className="stack">
         <h2>Versamenti</h2>
-        {month.settlements.length === 0 ? <p className="muted">Nessuno.</p> : null}
+        {month.settlements.length === 0 ? <p className="muted">Nessun versamento.</p> : null}
         {month.settlements.map((settlement) =>
           editingId === settlement.id ? (
             <SettlementEditor key={settlement.id} settlement={settlement} onClose={() => setEditingId(null)} />
@@ -85,15 +101,6 @@ export function Balance() {
         )}
       </section>
 
-      {computation.calculable && computation.openDebtCents && computation.debtor && computation.creditor ? (
-        <NewSettlement
-          monthId={monthId}
-          amountCents={computation.openDebtCents}
-          from={computation.debtor}
-          to={computation.creditor}
-        />
-      ) : null}
-      {computation.calculable && computation.openDebtCents === 0 ? <p className="hint">In pari.</p> : null}
     </div>
   )
 }
@@ -152,10 +159,13 @@ function NewSettlement({
   }
 
   return (
-    <form className="sheet stack" onSubmit={(event) => void onSubmit(event)}>
-      <h2>
-        {PEOPLE[from].name} a {PEOPLE[to].name}
-      </h2>
+    <form className="panel stack" onSubmit={(event) => void onSubmit(event)}>
+      <div>
+        <h2>Versamento</h2>
+        <p className="meta">
+          Da {PEOPLE[from].name} a {PEOPLE[to].name}
+        </p>
+      </div>
       <Field label="Importo">
         <input inputMode="decimal" autoComplete="off" value={amount} onChange={(event) => setAmount(event.target.value)} />
       </Field>
@@ -221,7 +231,7 @@ function SettlementEditor({ settlement, onClose }: { settlement: Settlement; onC
       <Field label="Data">
         <input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
       </Field>
-      <div className="cols">
+      <div className="split">
         <PersonSelect label="Da" value={from} onChange={setFrom} />
         <PersonSelect label="A" value={to} onChange={setTo} />
       </div>

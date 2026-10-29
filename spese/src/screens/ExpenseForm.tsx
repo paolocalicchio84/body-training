@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { quotasForAmount } from '../calc.ts'
 import { sortCategories } from '../db.ts'
-import { isMonthId, isValidDate, monthIdFromDate, todayIso } from '../dates.ts'
+import { formatMonthId, isMonthId, isValidDate, monthIdFromDate, todayIso } from '../dates.ts'
 import { formatAmountInput, formatEuro, parseMoneyToCents } from '../money.ts'
 import { PEOPLE, PERSON_IDS, createId, type PersonId } from '../model.ts'
 import { useMonthData, useStore } from '../store.tsx'
@@ -17,7 +17,7 @@ export function ExpenseForm() {
 
   if (expenseId && !expense) {
     return (
-      <section className="sheet stack">
+      <section className="panel stack">
         <h1>Spesa non trovata</h1>
         <Link className="button secondary" to={`/mese/${store.viewMonthId}`}>
           Torna al mese
@@ -62,6 +62,7 @@ function ExpenseEditor({
   const [amount, setAmount] = useState(expense ? formatAmountInput(expense.amountCents) : '')
   const [date, setDate] = useState(expense?.date ?? todayIso())
   const [paidBy, setPaidBy] = useState<PersonId>(expense?.paidBy ?? profile)
+  const [paidTouched, setPaidTouched] = useState(false)
   const [categoryId, setCategoryId] = useState(expense?.categoryId ?? '')
   const [monthId, setMonthId] = useState(expense?.monthId ?? originMonthId)
   const [monthTouched, setMonthTouched] = useState(
@@ -74,6 +75,10 @@ function ExpenseEditor({
   const parsed = parseMoneyToCents(amount)
   const quotas = parsed && parsed > 0 ? quotasForAmount(parsed, month.computation) : null
   const options = sortCategories(categories).filter((category) => !category.archived || category.id === categoryId)
+
+  useEffect(() => {
+    if (!expense && !paidTouched) setPaidBy(profile)
+  }, [expense, paidTouched, profile])
 
   function onDate(value: string) {
     setDate(value)
@@ -125,10 +130,18 @@ function ExpenseEditor({
   }
 
   return (
-    <form className="stack" onSubmit={(event) => void onSubmit(event)}>
+    <form className="stack with-actions" onSubmit={(event) => void onSubmit(event)}>
       <h1>{expense ? 'Correggi spesa' : 'Nuova spesa'}</h1>
+      {expense ? null : <p className="lede">In {formatMonthId(monthId)}</p>}
       <Field label="Importo">
-        <input inputMode="decimal" autoComplete="off" value={amount} onChange={(event) => setAmount(event.target.value)} />
+        <input
+          className="amount-input"
+          inputMode="decimal"
+          autoComplete="off"
+          placeholder="0,00"
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+        />
       </Field>
       <Field label="Data">
         <input type="date" value={date} onChange={(event) => onDate(event.target.value)} required />
@@ -149,19 +162,23 @@ function ExpenseEditor({
           Non ci sono categorie attive. <Link to="/categorie">Gestisci le categorie</Link>.
         </p>
       ) : null}
-      <fieldset className="stack">
+      <fieldset role="radiogroup" aria-label="Pagata da">
         <legend>Pagata da</legend>
-        <div className="row">
+        <div className="choices">
           {PERSON_IDS.map((personId) => (
-            <label key={personId} className="row">
-              <input
-                type="radio"
-                name="paidBy"
-                checked={paidBy === personId}
-                onChange={() => setPaidBy(personId)}
-              />
+            <button
+              key={personId}
+              className="choice"
+              type="button"
+              role="radio"
+              aria-checked={paidBy === personId}
+              onClick={() => {
+                setPaidTouched(true)
+                setPaidBy(personId)
+              }}
+            >
               {PEOPLE[personId].name}
-            </label>
+            </button>
           ))}
         </div>
       </fieldset>
@@ -182,14 +199,14 @@ function ExpenseEditor({
           Paolo {formatEuro(quotas.paolo)} · Cassiana {formatEuro(quotas.cassiana)}
         </p>
       ) : null}
-      <Errors messages={errors} />
-      <div className="row">
-        <button className="primary" type="submit" disabled={pending}>
-          {expense ? 'Salva modifiche' : 'Salva la spesa'}
-        </button>
+      <div className="form-actions">
+        <Errors messages={errors} />
         <Link className="button ghost" to={`/mese/${originMonthId}`}>
           Annulla
         </Link>
+        <button className="primary" type="submit" disabled={pending}>
+          {expense ? 'Salva modifiche' : 'Salva la spesa'}
+        </button>
       </div>
       {expense ? (
         <Confirming

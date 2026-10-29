@@ -60,28 +60,36 @@ function Shell() {
   const monthPath = `/mese/${activeMonthId}`
   const homeMatch = /^\/mese\/(\d{4}-\d{2})$/.exec(location.pathname)
   const showAdd = Boolean(homeMatch && months.some((month) => month.id === homeMatch[1]))
+  const expenseRoute = /\/spesa(\/|$)/.test(location.pathname)
   return (
     <div className={showAdd ? 'app with-add' : 'app'}>
       <header className="top">
-        {homeMatch ? null : (
-          <Link className="home-back" to={monthPath}>
-            ← Home
-          </Link>
-        )}
-        <Link className="brand" to={monthPath}>
-          <strong>Spese di coppia</strong>
-          <span>Paolo e Cassiana</span>
-        </Link>
-        <div className="switch" role="radiogroup" aria-label="Profilo attivo">
-          {(['paolo', 'cassiana'] as const).map((personId) => (
-            <ProfileButton
-              key={personId}
-              personId={personId}
-              active={profile === personId}
-              onSelect={setProfile}
-            />
-          ))}
+        <div className="bar">
+          {homeMatch ? (
+            <Link className="brand" to={monthPath}>
+              <strong>Spese di coppia</strong>
+            </Link>
+          ) : (
+            <Link className="home-back" to={monthPath}>
+              ← Home
+            </Link>
+          )}
         </div>
+        {expenseRoute ? null : (
+          <div className="who">
+            <span className="who-label">Chi usa il telefono</span>
+            <div className="switch" role="radiogroup" aria-label="Chi usa il telefono">
+              {(['paolo', 'cassiana'] as const).map((personId) => (
+                <ProfileButton
+                  key={personId}
+                  personId={personId}
+                  active={profile === personId}
+                  onSelect={setProfile}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </header>
       <main className="main">
         <Outlet />

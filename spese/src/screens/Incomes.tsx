@@ -95,7 +95,7 @@ export function Incomes() {
   }
 
   return (
-    <form className="stack" onSubmit={(event) => void onSubmit(event)}>
+    <form className="stack with-actions" onSubmit={(event) => void onSubmit(event)}>
       <div className="month-head">
         <h1>{title}</h1>
         <p>Queste cifre valgono solo per questo mese.</p>
@@ -106,7 +106,7 @@ export function Incomes() {
           const draft = drafts[personId]
           const unit = formatEuro(PEOPLE[personId].voucherUnitCents)
           return (
-            <section className="person stack" key={personId}>
+            <section className={`person panel stack ${personId}`} key={personId}>
               <h2>{PEOPLE[personId].name}</h2>
               <Field label="Stipendio">
                 <input
@@ -132,8 +132,10 @@ export function Incomes() {
                   onChange={(event) => update(personId, 'notes', event.target.value)}
                 />
               </Field>
-              <p className="stat">
-                <span>Mutuo</span>
+              <p className="stat locked">
+                <span>
+                  Mutuo <em>fisso</em>
+                </span>
                 <strong>{formatEuro(PEOPLE[personId].mortgageCents)}</strong>
               </p>
               <Field label="Extra">
@@ -165,11 +167,17 @@ export function Incomes() {
         </p>
       ) : null}
 
-      <Errors messages={errors} />
-      {message ? <p className="status" role="status">{message}</p> : null}
-      <button className="primary" type="submit" disabled={pending}>
-        Salva
-      </button>
+      <div className="form-actions">
+        <Errors messages={errors} />
+        {message ? (
+          <p className="status" role="status">
+            {message}
+          </p>
+        ) : null}
+        <button className="primary" type="submit" disabled={pending}>
+          Salva
+        </button>
+      </div>
     </form>
   )
 }

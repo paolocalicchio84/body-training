@@ -5,6 +5,13 @@ import { PEOPLE, PERSON_IDS } from '../model.ts'
 import { useMonthData, useStore } from '../store.tsx'
 import { EuroValue, MonthChooser, OpenMonthCard, Phrase, useTitle } from '../ui.tsx'
 
+function creditLabel(cents: number | null): string {
+  if (cents === null) return 'Saldo'
+  if (cents > 0) return 'A credito'
+  if (cents < 0) return 'A debito'
+  return 'In pari'
+}
+
 export function Home() {
   const { monthId = '' } = useParams()
   const navigate = useNavigate()
@@ -19,8 +26,8 @@ export function Home() {
     return (
       <div className="stack">
         <OpenMonthCard monthId={monthId} onOpen={() => openMonth(monthId)} />
-        <section className="sheet stack">
-          <h2>Scegli un mese</h2>
+        <section className="stack">
+          <h2>Oppure un altro mese</h2>
           <MonthChooser
             onChoose={async (next) => {
               await openMonth(next)
@@ -40,22 +47,24 @@ export function Home() {
       <h1>{title}</h1>
 
       {missing.length > 0 ? (
-        <Link className="text-link" to={`/mese/${monthId}/redditi`}>
+        <Link className="banner" to={`/mese/${monthId}/redditi`}>
           {missing.length === 2 ? 'Inserisci i redditi' : `Manca il reddito di ${PEOPLE[missing[0]].name}`}
         </Link>
+      ) : (
+        <Phrase computation={computation} />
+      )}
+
+      {computation.reason === 'no-positive-weight' ? (
+        <p className="hint">Con questi netti non si può dividere.</p>
       ) : null}
-
-      {computation.reason === 'no-positive-weight' ? <p className="hint">Nessun peso positivo.</p> : null}
-
-      <Phrase computation={computation} />
-      <p className="total">Spese {formatEuro(computation.totalExpensesCents)}</p>
 
       <div className="pair">
         {PERSON_IDS.map((personId) => {
           const person = computation.people[personId]
           return (
-            <article className="person" key={personId}>
+            <article className={`person ${personId}`} key={personId}>
               <h2>{PEOPLE[personId].name}</h2>
+              <p className="kicker">{creditLabel(person.balanceCents)}</p>
               <p className="glance">
                 <EuroValue cents={person.balanceCents} />
               </p>
@@ -65,33 +74,43 @@ export function Home() {
         })}
       </div>
 
-      <Link className="text-link" to={`/mese/${monthId}/saldo`}>
+      <Link className="button secondary" to={`/mese/${monthId}/saldo`}>
         Regola il saldo
       </Link>
 
       <section className="stack">
-        <h2>Spese</h2>
+        <div className="section-title">
+          <h2>Spese</h2>
+          {computation.totalExpensesCents > 0 ? (
+            <span className="total">{formatEuro(computation.totalExpensesCents)}</span>
+          ) : null}
+        </div>
         {month.expenses.length === 0 ? <p className="muted">Nessuna spesa.</p> : null}
-        {month.expenses.map((expense) => {
-          const category = categories.find((item) => item.id === expense.categoryId)
-          return (
-            <article className="expense" key={expense.id}>
-              <Link to={`/spesa/${expense.id}`}>
-                <div className="row spread">
-                  <strong>{category?.name ?? 'Categoria'}</strong>
-                  <span className="amount">{formatEuro(expense.amountCents)}</span>
-                </div>
-                <p className="meta">
-                  {formatDateLong(expense.date)} · {PEOPLE[expense.paidBy].name}
-                  {expense.note ? ` · ${expense.note}` : ''}
-                </p>
-              </Link>
-            </article>
-          )
-        })}
+        {month.expenses.length > 0 ? (
+          <div className="list">
+            {month.expenses.map((expense) => {
+              const category = categories.find((item) => item.id === expense.categoryId)
+              return (
+                <article className="expense" key={expense.id}>
+                  <Link to={`/spesa/${expense.id}`}>
+                    <strong>{category?.name ?? 'Categoria'}</strong>
+                    <span className="amount">{formatEuro(expense.amountCents)}</span>
+                    <span className="chev" aria-hidden="true">
+                      ›
+                    </span>
+                    <p className="meta">
+                      {formatDateLong(expense.date)} · {PEOPLE[expense.paidBy].name}
+                      {expense.note ? ` · ${expense.note}` : ''}
+                    </p>
+                  </Link>
+                </article>
+              )
+            })}
+          </div>
+        ) : null}
       </section>
 
-      <details>
+      <details className="more">
         <summary>Altro mese</summary>
         <MonthChooser
           onChoose={async (next) => {
