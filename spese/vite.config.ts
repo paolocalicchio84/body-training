@@ -15,8 +15,8 @@ export default defineConfig({
           'Divisione delle spese comuni tra Paolo e Cassiana, in proporzione al reddito del mese.',
         lang: 'it',
         dir: 'ltr',
-        theme_color: '#1e4d3a',
-        background_color: '#f3ecdf',
+        theme_color: '#3e5348',
+        background_color: '#f3e8e2',
         display: 'standalone',
         start_url: '/',
         scope: '/',
@@ -60,5 +60,6 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: true,
+    allowedHosts: ['.trycloudflare.com'],
   },
 })

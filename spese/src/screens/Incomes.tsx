@@ -102,7 +102,10 @@ export function Incomes() {
     <form className="stack" onSubmit={(event) => void onSubmit(event)}>
       <div>
         <h1>Redditi</h1>
-        <p className="lede">{title}. Il valore del buono è fisso: Paolo 4,50 €, Cassiana 10,00 €.</p>
+        <p className="lede">
+          {title}. Il valore del buono è fisso: Paolo 4,50 €, Cassiana 10,00 €. Il mutuo è fisso e non si
+          modifica: Paolo 291,26 €, Cassiana 425,67 €.
+        </p>
       </div>
       <div className="cols">
         {PERSON_IDS.map((personId) => {
@@ -140,6 +143,9 @@ export function Incomes() {
                   value={draft.notes}
                   onChange={(event) => update(personId, 'notes', event.target.value)}
                 />
+              </Field>
+              <Field label="Mutuo" hint="Fisso per la persona. Si vede in ogni mese e non si modifica.">
+                <div className="readonly">{formatEuro(PEOPLE[personId].mortgageCents)}</div>
               </Field>
               <Field label="Guadagni extra" hint="Vuoto al salvataggio vale 0.">
                 <input

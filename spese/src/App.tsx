@@ -45,6 +45,7 @@ function Shell() {
   useEffect(() => {
     const match = /^\/mese\/(\d{4}-\d{2})/.exec(location.pathname)
     if (match && isMonthId(match[1])) setViewMonthId(match[1])
+    window.scrollTo(0, 0)
   }, [location.pathname, setViewMonthId])
 
   if (status === 'loading') {

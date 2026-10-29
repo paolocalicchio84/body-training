@@ -6,11 +6,13 @@ export type Person = {
   id: PersonId
   name: string
   voucherUnitCents: number
+  /** Costante della persona, in centesimi. Non è un dato del mese. */
+  mortgageCents: number
 }
 
 export const PEOPLE: Record<PersonId, Person> = {
-  paolo: { id: 'paolo', name: 'Paolo', voucherUnitCents: 450 },
-  cassiana: { id: 'cassiana', name: 'Cassiana', voucherUnitCents: 1000 },
+  paolo: { id: 'paolo', name: 'Paolo', voucherUnitCents: 450, mortgageCents: 29_126 },
+  cassiana: { id: 'cassiana', name: 'Cassiana', voucherUnitCents: 1000, mortgageCents: 42_567 },
 }
 
 export type MonthRecord = {

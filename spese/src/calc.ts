@@ -18,10 +18,12 @@ export type DraftRead = {
 }
 
 export function netIncomeCents(personId: PersonId, income: IncomeInput): number {
+  const person = PEOPLE[personId]
   return (
     income.salaryCents +
-    income.voucherCount * PEOPLE[personId].voucherUnitCents -
-    income.notesCents +
+    income.voucherCount * person.voucherUnitCents -
+    income.notesCents -
+    person.mortgageCents +
     income.extraCents
   )
 }

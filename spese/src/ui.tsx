@@ -99,7 +99,8 @@ export function OpenMonthCard({
       <h1>{title}</h1>
       <p>
         {title} non è ancora aperto. Un mese nuovo nasce vuoto: stipendio, buoni, note spese ed extra non si
-        copiano dal mese precedente. Categorie e valore dei buoni restano quelli già definiti.
+        copiano dal mese precedente. Categorie, valore dei buoni e mutuo restano quelli già definiti: il mutuo
+        non è un campo del mese.
       </p>
       <button
         className="primary"

@@ -38,7 +38,7 @@ export function Home() {
 
   return (
     <div className="stack">
-      <div className="row spread">
+      <div className="stack">
         <div>
           <h1>{title}</h1>
           <p className="lede">Spese comuni divise in proporzione al reddito netto del mese.</p>
