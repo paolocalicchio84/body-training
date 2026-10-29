@@ -111,7 +111,7 @@ export function Home() {
       </section>
 
       <details className="more">
-        <summary>Altro mese</summary>
+        <summary>Apri un altro mese</summary>
         <MonthChooser
           onChoose={async (next) => {
             await openMonth(next)

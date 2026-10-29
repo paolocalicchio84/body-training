@@ -15,7 +15,7 @@
   --warn: #f6efe4;
   --serif: "Iowan Old Style", Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --sans: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-  --dock: calc(80px + env(safe-area-inset-bottom));
+  --dock: calc(90px + env(safe-area-inset-bottom));
   --shadow: 0 10px 30px rgba(74, 52, 48, 0.06);
   font-family: var(--sans);
   font-size: 17px;
@@ -54,7 +54,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .app.with-add {
-  --dock: calc(150px + env(safe-area-inset-bottom));
+  --dock: calc(160px + env(safe-area-inset-bottom));
 }
 
 .top {
@@ -448,15 +448,21 @@ summary {
   font-weight: 600;
 }
 
-.more summary { list-style: none; justify-content: space-between; }
-.more summary::-webkit-details-marker { display: none; }
-.more summary::after {
-  content: "›";
-  color: var(--sand-deep);
-  font-size: 1.5rem;
-  line-height: 1;
+.more summary {
+  list-style: none;
+  justify-content: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: 1px solid var(--sand-deep);
+  border-radius: 16px;
+  background: var(--sheet);
+  color: #140e10;
+  font-size: 1.08rem;
+  font-weight: 700;
 }
-.more[open] summary::after { transform: rotate(90deg); }
+.more summary::-webkit-details-marker { display: none; }
+.more summary::after { content: none; }
 
 .field span, label span, legend { color: var(--muted); font-size: 0.92rem; }
 
@@ -558,15 +564,15 @@ input::placeholder { color: var(--sand-deep); }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 8px 6px;
+  min-height: 52px;
+  padding: 10px 4px;
   border-radius: 12px;
-  background: transparent;
-  color: var(--ink);
+  background: var(--sheet);
+  color: #140e10;
   text-align: center;
   text-decoration: none;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.2rem;
+  font-weight: 700;
 }
 
 .dock-menu a[aria-current="page"] {
