@@ -159,7 +159,7 @@ function NewSettlement({
   }
 
   return (
-    <form className="panel stack" onSubmit={(event) => void onSubmit(event)}>
+    <form className="panel stack settle" onSubmit={(event) => void onSubmit(event)}>
       <div>
         <h2>Versamento</h2>
         <p className="meta">
@@ -179,9 +179,11 @@ function NewSettlement({
         <input value={note} maxLength={200} onChange={(event) => setNote(event.target.value)} />
       </Field>
       <Errors messages={errors} />
-      <button className="primary" type="submit" disabled={pending}>
-        Registra versamento
-      </button>
+      <div className="settle-bar">
+        <button className="primary" type="submit" disabled={pending}>
+          Registra versamento
+        </button>
+      </div>
     </form>
   )
 }

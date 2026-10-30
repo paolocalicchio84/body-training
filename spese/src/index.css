@@ -448,9 +448,7 @@ summary {
   font-weight: 600;
 }
 
-.more summary {
-  list-style: none;
-  justify-content: center;
+.more-open {
   width: 100%;
   min-height: 52px;
   padding: 12px 16px;
@@ -461,8 +459,42 @@ summary {
   font-size: 1.08rem;
   font-weight: 700;
 }
-.more summary::-webkit-details-marker { display: none; }
-.more summary::after { content: none; }
+
+.month-sheet {
+  position: fixed;
+  z-index: 7;
+  left: 50%;
+  bottom: calc(var(--dock) + 8px);
+  transform: translateX(-50%);
+  width: min(32rem, calc(100% - 24px));
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--sand-deep);
+  border-radius: 18px;
+  background: var(--sheet);
+  box-shadow: 0 -8px 28px rgba(42, 35, 36, 0.16);
+}
+
+.month-sheet .stack { gap: 12px; }
+
+.payer-now {
+  margin: 0;
+  color: #140e10;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.settle { padding-bottom: 72px; }
+
+.settle-bar {
+  position: fixed;
+  z-index: 7;
+  left: 50%;
+  bottom: calc(var(--dock) + 8px);
+  transform: translateX(-50%);
+  width: min(32rem, calc(100% - 40px));
+}
 
 .field span, label span, legend { color: var(--muted); font-size: 0.92rem; }
 

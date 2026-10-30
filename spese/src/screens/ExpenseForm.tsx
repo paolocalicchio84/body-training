@@ -164,6 +164,7 @@ function ExpenseEditor({
       ) : null}
       <fieldset role="radiogroup" aria-label="Pagata da">
         <legend>Pagata da</legend>
+        {expense ? null : <p className="payer-now">Risulta pagata da {PEOPLE[paidBy].name}.</p>}
         <div className="choices">
           {PERSON_IDS.map((personId) => (
             <button

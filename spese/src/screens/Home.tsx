@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { formatDateLong, formatMonthTitle, isMonthId } from '../dates.ts'
 import { formatEuro } from '../money.ts'
@@ -16,6 +17,7 @@ export function Home() {
   const { monthId = '' } = useParams()
   const navigate = useNavigate()
   const { openMonth, categories } = useStore()
+  const [monthOpen, setMonthOpen] = useState(false)
   const month = useMonthData(monthId)
   const title = formatMonthTitle(monthId)
   useTitle(title)
@@ -110,15 +112,24 @@ export function Home() {
         ) : null}
       </section>
 
-      <details className="more">
-        <summary>Passa a un altro mese</summary>
-        <MonthChooser
-          onChoose={async (next) => {
-            await openMonth(next)
-            navigate(`/mese/${next}`)
-          }}
-        />
-      </details>
+      {monthOpen ? (
+        <div className="month-sheet">
+          <button type="button" className="more-open" aria-expanded="true" onClick={() => setMonthOpen(false)}>
+            Passa a un altro mese
+          </button>
+          <MonthChooser
+            onChoose={async (next) => {
+              setMonthOpen(false)
+              await openMonth(next)
+              navigate(`/mese/${next}`)
+            }}
+          />
+        </div>
+      ) : (
+        <button type="button" className="more-open" aria-expanded="false" onClick={() => setMonthOpen(true)}>
+          Passa a un altro mese
+        </button>
+      )}
     </div>
   )
 }
