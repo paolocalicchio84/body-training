@@ -61,7 +61,11 @@ export function Home() {
   return (
     <div className="stack home">
       <p className="home-month">{title}</p>
-      {missing.length > 0 ? (
+      {missing.length === 2 ? (
+        <Link className="button secondary" to={`/mese/${monthId}/redditi`}>
+          Inserisci i redditi
+        </Link>
+      ) : missing.length > 0 ? (
         <h1 className="home-debt">
           <Link to={`/mese/${monthId}/redditi`}>{statement}</Link>
         </h1>
