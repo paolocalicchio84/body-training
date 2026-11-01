@@ -4,7 +4,7 @@ import type { Expense, IncomeRecord } from './model.ts'
  * Caricamento di settembre 2026, non è un seed permanente.
  * Per il reset: metti questo flag a false.
  */
-export const CARICA_SETTEMBRE_2026 = true
+export const CARICA_SETTEMBRE_2026 = false
 
 const MONTH_ID = '2026-09'
 
