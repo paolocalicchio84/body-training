@@ -4,7 +4,7 @@ import { currentMonthId, formatDateLong, formatMonthTitle, isMonthId } from '../
 import { formatEuro } from '../money.ts'
 import { PEOPLE, PERSON_IDS } from '../model.ts'
 import { useMonthData, useStore } from '../store.tsx'
-import { EuroValue, MonthChooser, OpenMonthCard, Phrase, useTitle } from '../ui.tsx'
+import { EuroValue, MonthChooser, useTitle } from '../ui.tsx'
 
 function creditLabel(cents: number | null): string {
   if (cents === null) return 'Saldo'
@@ -26,8 +26,12 @@ export function Home() {
 
   if (!month.open) {
     return (
-      <div className="stack">
-        <OpenMonthCard monthId={monthId} onOpen={() => openMonth(monthId)} />
+      <div className="stack home">
+        <p className="home-month">{title}</p>
+        <h1 className="home-debt">Mese vuoto.</h1>
+        <button type="button" className="text-link" onClick={() => void openMonth(monthId)}>
+          Apri {title}
+        </button>
         {monthId === currentMonthId() ? null : (
           <section className="stack">
             <h2>Oppure un altro mese</h2>
@@ -46,16 +50,23 @@ export function Home() {
   const { computation } = month
   const missing = PERSON_IDS.filter((personId) => !computation.people[personId].saved)
 
-  return (
-    <div className="stack">
-      <h1>{title}</h1>
+  const tone = !computation.calculable ? 'blocked' : computation.openDebtCents === 0 ? 'even' : 'debt'
+  const statement =
+    missing.length === 0
+      ? computation.phrase.replace(/ €/g, '\u00a0€')
+      : missing.length === 2
+        ? 'Inserisci i redditi'
+        : `Manca il reddito di ${PEOPLE[missing[0]].name}`
 
+  return (
+    <div className="stack home">
+      <p className="home-month">{title}</p>
       {missing.length > 0 ? (
-        <Link className="banner" to={`/mese/${monthId}/redditi`}>
-          {missing.length === 2 ? 'Inserisci i redditi' : `Manca il reddito di ${PEOPLE[missing[0]].name}`}
-        </Link>
+        <h1 className="home-debt">
+          <Link to={`/mese/${monthId}/redditi`}>{statement}</Link>
+        </h1>
       ) : (
-        <Phrase computation={computation} />
+        <h1 className={`home-debt ${tone}`}>{statement}</h1>
       )}
 
       {computation.reason === 'no-positive-weight' ? (
@@ -80,7 +91,7 @@ export function Home() {
       </div>
 
       {missing.length === 0 ? (
-        <Link className="button secondary" to={`/mese/${monthId}/saldo`}>
+        <Link className="text-link" to={`/mese/${monthId}/saldo`}>
           Regola il saldo
         </Link>
       ) : null}
