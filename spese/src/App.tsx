@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { BrowserRouter } from 'react-router-dom'
 import { isMonthId } from './dates.ts'
 import { PEOPLE, type PersonId } from './model.ts'
@@ -39,8 +39,9 @@ function HomeRedirect() {
 }
 
 function Shell() {
-  const { status, error, profile, setProfile, viewMonthId, setViewMonthId, months } = useStore()
+  const { status, error, profile, setProfile, viewMonthId, setViewMonthId, months, openMonth } = useStore()
   const location = useLocation()
+  const navigate = useNavigate()
 
   useEffect(() => {
     const match = /^\/mese\/(\d{4}-\d{2})/.exec(location.pathname)
@@ -59,10 +60,15 @@ function Shell() {
   const activeMonthId = routeMonth && isMonthId(routeMonth) ? routeMonth : viewMonthId
   const monthPath = `/mese/${activeMonthId}`
   const homeMatch = /^\/mese\/(\d{4}-\d{2})$/.exec(location.pathname)
-  const showAdd = Boolean(homeMatch && months.some((month) => month.id === homeMatch[1]))
   const expenseRoute = /\/spesa(\/|$)/.test(location.pathname)
+
+  async function addExpense() {
+    if (!months.some((month) => month.id === activeMonthId)) await openMonth(activeMonthId)
+    navigate(`/mese/${activeMonthId}/spesa/nuova`)
+  }
+
   return (
-    <div className={showAdd ? 'app with-add' : 'app'}>
+    <div className="app">
       <header className="top">
         <div className="bar">
           {homeMatch ? (
@@ -102,15 +108,15 @@ function Shell() {
           <NavLink to="/storico" end>
             Storico
           </NavLink>
+          <button type="button" className="dock-plus" aria-label="Aggiungi una spesa" onClick={() => void addExpense()}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M10 3.2h4V10h6.8v4H14v6.8h-4V14H3.2v-4H10V3.2z" />
+            </svg>
+          </button>
           <NavLink to="/categorie" end>
             Categorie
           </NavLink>
         </nav>
-        {showAdd && homeMatch ? (
-          <Link className="dock-add" to={`/mese/${homeMatch[1]}/spesa/nuova`}>
-            Aggiungi una spesa
-          </Link>
-        ) : null}
       </div>
     </div>
   )
