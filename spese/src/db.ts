@@ -1,3 +1,4 @@
+import { CARICA_SETTEMBRE_2026, writeSeptember2026 } from './carica-settembre.ts'
 import {
   INITIAL_CATEGORIES,
   type Category,
@@ -87,6 +88,7 @@ async function seedCategories(db: IDBDatabase): Promise<void> {
 
 export async function loadSnapshot(): Promise<DatabaseSnapshot> {
   const db = await openDatabase()
+  if (CARICA_SETTEMBRE_2026) await writeSeptember2026(db)
   const transaction = db.transaction(
     ['settings', 'months', 'incomes', 'categories', 'expenses', 'settlements'],
     'readonly',
