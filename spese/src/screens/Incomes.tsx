@@ -19,9 +19,75 @@ function draftFrom(record: IncomeRecord | null): IncomeDraft {
   }
 }
 
+function IncomeFields({
+  personId,
+  draft,
+  read,
+  onChange,
+}: {
+  personId: PersonId
+  draft: IncomeDraft
+  read: ReturnType<typeof readIncomeDraft>
+  onChange: (field: keyof IncomeDraft, value: string) => void
+}) {
+  const unit = formatEuro(PEOPLE[personId].voucherUnitCents)
+  return (
+    <>
+      <Field label="Stipendio">
+        <input
+          inputMode="decimal"
+          autoComplete="off"
+          value={draft.salary}
+          onChange={(event) => onChange('salary', event.target.value)}
+        />
+      </Field>
+      <Field
+        label="Numero di buoni"
+        hint={`${unit} l’uno${read.voucherCents === null ? '' : ` · ${formatEuro(read.voucherCents)}`}`}
+      >
+        <input
+          inputMode="numeric"
+          autoComplete="off"
+          value={draft.vouchers}
+          onChange={(event) => onChange('vouchers', event.target.value)}
+        />
+      </Field>
+      <Field label="Note spese">
+        <input
+          inputMode="decimal"
+          autoComplete="off"
+          value={draft.notes}
+          onChange={(event) => onChange('notes', event.target.value)}
+        />
+      </Field>
+      <p className="stat locked">
+        <span>
+          Mutuo <em>fisso</em>
+        </span>
+        <strong>{formatEuro(PEOPLE[personId].mortgageCents)}</strong>
+      </p>
+      <Field label="Extra">
+        <input
+          inputMode="decimal"
+          autoComplete="off"
+          value={draft.extra}
+          onChange={(event) => onChange('extra', event.target.value)}
+        />
+      </Field>
+      <p className="result">
+        <span>Netto</span>
+        <strong>{read.salaryEmpty ? 'Mancante' : read.netCents === null ? '—' : formatEuro(read.netCents)}</strong>
+      </p>
+      {read.weightCents !== null && read.netCents !== null && read.weightCents !== read.netCents ? (
+        <p className="meta">Peso {formatEuro(read.weightCents)}</p>
+      ) : null}
+    </>
+  )
+}
+
 export function Incomes() {
   const { monthId = '' } = useParams()
-  const { openMonth, saveMonthIncomes } = useStore()
+  const { openMonth, saveMonthIncomes, profile } = useStore()
   const month = useMonthData(monthId)
   const title = formatMonthTitle(monthId)
   useTitle(`Redditi ${title}`)
@@ -55,6 +121,7 @@ export function Incomes() {
     expenses: [],
     settlements: [],
   })
+  const otherId: PersonId = profile === 'paolo' ? 'cassiana' : 'paolo'
 
   function update(personId: PersonId, field: keyof IncomeDraft, value: string) {
     setMessage(null)
@@ -101,63 +168,26 @@ export function Incomes() {
         <p>Queste cifre valgono solo per questo mese.</p>
       </div>
       <div className="cols">
-        {PERSON_IDS.map((personId) => {
-          const read = reads[personId]
-          const draft = drafts[personId]
-          const unit = formatEuro(PEOPLE[personId].voucherUnitCents)
-          return (
-            <section className={`person panel stack ${personId}`} key={personId}>
-              <h2>{PEOPLE[personId].name}</h2>
-              <Field label="Stipendio">
-                <input
-                  inputMode="decimal"
-                  autoComplete="off"
-                  value={draft.salary}
-                  onChange={(event) => update(personId, 'salary', event.target.value)}
-                />
-              </Field>
-              <Field label="Buoni" hint={`${unit} l’uno${read.voucherCents === null ? '' : ` · ${formatEuro(read.voucherCents)}`}`}>
-                <input
-                  inputMode="numeric"
-                  autoComplete="off"
-                  value={draft.vouchers}
-                  onChange={(event) => update(personId, 'vouchers', event.target.value)}
-                />
-              </Field>
-              <Field label="Note spese">
-                <input
-                  inputMode="decimal"
-                  autoComplete="off"
-                  value={draft.notes}
-                  onChange={(event) => update(personId, 'notes', event.target.value)}
-                />
-              </Field>
-              <p className="stat locked">
-                <span>
-                  Mutuo <em>fisso</em>
-                </span>
-                <strong>{formatEuro(PEOPLE[personId].mortgageCents)}</strong>
-              </p>
-              <Field label="Extra">
-                <input
-                  inputMode="decimal"
-                  autoComplete="off"
-                  value={draft.extra}
-                  onChange={(event) => update(personId, 'extra', event.target.value)}
-                />
-              </Field>
-              <p className="result">
-                <span>Netto</span>
-                <strong>
-                  {read.salaryEmpty ? 'Mancante' : read.netCents === null ? '—' : formatEuro(read.netCents)}
-                </strong>
-              </p>
-              {read.weightCents !== null && read.netCents !== null && read.weightCents !== read.netCents ? (
-                <p className="meta">Peso {formatEuro(read.weightCents)}</p>
-              ) : null}
-            </section>
-          )
-        })}
+        <section className={`person panel stack ${profile}`}>
+          <h2>{PEOPLE[profile].name}</h2>
+          <IncomeFields
+            personId={profile}
+            draft={drafts[profile]}
+            read={reads[profile]}
+            onChange={(field, value) => update(profile, field, value)}
+          />
+        </section>
+        <details className={`person panel partner ${otherId}`} key={otherId}>
+          <summary>{PEOPLE[otherId].name}</summary>
+          <div className="stack partner-body">
+            <IncomeFields
+              personId={otherId}
+              draft={drafts[otherId]}
+              read={reads[otherId]}
+              onChange={(field, value) => update(otherId, field, value)}
+            />
+          </div>
+        </details>
       </div>
 
       {preview.calculable && preview.percents ? (

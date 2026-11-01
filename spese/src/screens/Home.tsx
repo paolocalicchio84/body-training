@@ -27,7 +27,6 @@ export function Home() {
   if (!month.open) {
     return (
       <div className="stack home">
-        <p className="home-month">{title}</p>
         <h1 className="home-debt">Mese vuoto.</h1>
         <button type="button" className="text-link" onClick={() => void openMonth(monthId)}>
           Apri {title}
@@ -60,7 +59,6 @@ export function Home() {
 
   return (
     <div className="stack home">
-      <p className="home-month">{title}</p>
       {missing.length === 2 ? (
         <Link className="button secondary" to={`/mese/${monthId}/redditi`}>
           Inserisci i redditi

@@ -200,10 +200,11 @@ h2 { font-size: 1.28rem; line-height: 1.2; }
 .stack { display: grid; gap: 16px; }
 
 .home-month {
-  margin: 8px 0 0;
-  color: var(--muted);
-  font-size: 1rem;
-  font-weight: 600;
+  margin: 0;
+  color: var(--ink);
+  font-size: 2.35rem;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
 }
 
 .home-debt {
@@ -718,6 +719,43 @@ input::placeholder { color: var(--sand-deep); }
 .confirm button { width: 100%; }
 
 .cols { display: grid; gap: 14px; }
+
+.partner { padding: 0; }
+
+.partner summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 14px 16px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--serif);
+  font-size: 1.28rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.partner summary::-webkit-details-marker { display: none; }
+
+.partner summary::after {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-top: -4px;
+  border-right: 2px solid var(--sage);
+  border-bottom: 2px solid var(--sage);
+  transform: rotate(45deg);
+}
+
+.partner[open] summary::after {
+  margin-top: 4px;
+  transform: rotate(-135deg);
+}
+
+.partner-body { padding: 0 16px 16px; }
 
 .cols .person.panel > h2 {
   position: sticky;

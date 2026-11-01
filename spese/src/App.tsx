@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { BrowserRouter } from 'react-router-dom'
-import { isMonthId } from './dates.ts'
+import { formatMonthTitle, isMonthId } from './dates.ts'
 import { PEOPLE, type PersonId } from './model.ts'
 import { Balance } from './screens/Balance.tsx'
 import { Categories } from './screens/Categories.tsx'
@@ -102,6 +102,7 @@ function Shell() {
             </svg>
           </NavLink>
         </div>
+        {homeMatch ? <h1 className="home-month">{formatMonthTitle(homeMatch[1])}</h1> : null}
         {expenseRoute ? null : (
           <div className="who">
             <span className="who-label">Chi usa il telefono</span>
