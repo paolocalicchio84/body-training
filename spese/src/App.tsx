@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link, NavLink, Navigate, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { BrowserRouter } from 'react-router-dom'
 import { isMonthId } from './dates.ts'
@@ -42,12 +42,26 @@ function Shell() {
   const { status, error, profile, setProfile, viewMonthId, setViewMonthId, months, openMonth } = useStore()
   const location = useLocation()
   const navigate = useNavigate()
+  const headerRef = useRef<HTMLElement>(null)
+  const expenseRoute = /\/spesa(\/|$)/.test(location.pathname)
 
   useEffect(() => {
     const match = /^\/mese\/(\d{4}-\d{2})/.exec(location.pathname)
     if (match && isMonthId(match[1])) setViewMonthId(match[1])
     window.scrollTo(0, 0)
   }, [location.pathname, setViewMonthId])
+
+  useEffect(() => {
+    const header = headerRef.current
+    if (!header) return
+    const write = () => {
+      document.documentElement.style.setProperty('--top-h', `${Math.ceil(header.getBoundingClientRect().height)}px`)
+    }
+    write()
+    const observer = new ResizeObserver(write)
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [status, expenseRoute])
 
   if (status === 'loading') {
     return <p className="boot">Caricamento dei dati sul dispositivo…</p>
@@ -60,7 +74,6 @@ function Shell() {
   const activeMonthId = routeMonth && isMonthId(routeMonth) ? routeMonth : viewMonthId
   const monthPath = `/mese/${activeMonthId}`
   const homeMatch = /^\/mese\/(\d{4}-\d{2})$/.exec(location.pathname)
-  const expenseRoute = /\/spesa(\/|$)/.test(location.pathname)
 
   async function addExpense() {
     if (!months.some((month) => month.id === activeMonthId)) await openMonth(activeMonthId)
@@ -69,7 +82,7 @@ function Shell() {
 
   return (
     <div className="app">
-      <header className="top">
+      <header className="top" ref={headerRef}>
         <div className="bar">
           {homeMatch ? (
             <Link className="brand" to={monthPath}>

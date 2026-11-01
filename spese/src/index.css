@@ -267,6 +267,14 @@ h2 { font-size: 1.28rem; line-height: 1.2; }
   font-variant-numeric: tabular-nums;
 }
 
+.missing {
+  margin: 4px 0 0;
+  color: var(--mauve);
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
 dl {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -673,4 +681,13 @@ input::placeholder { color: var(--sand-deep); }
 .confirm button { width: 100%; }
 
 .cols { display: grid; gap: 14px; }
+
+.cols .person.panel > h2 {
+  position: sticky;
+  top: var(--top-h, 0px);
+  z-index: 2;
+  margin: 0 -16px;
+  padding: 10px 16px;
+  background: var(--sheet);
+}
 .split { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px; }

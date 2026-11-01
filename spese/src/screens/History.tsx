@@ -11,6 +11,7 @@ export function History() {
   const navigate = useNavigate()
   useTitle('Storico')
   const monthIds = new Set<string>()
+  for (const month of store.months) monthIds.add(month.id)
   for (const income of store.incomes) monthIds.add(income.monthId)
   for (const expense of store.expenses) monthIds.add(expense.monthId)
   const ordered = [...monthIds].filter(isMonthId).sort((a, b) => b.localeCompare(a))
@@ -88,8 +89,7 @@ function toInput(
 function statusLabel(computation: MonthComputation): string {
   if (computation.reason === 'missing-income') return 'Redditi mancanti'
   if (!computation.calculable || computation.openDebtCents === null) return 'Ripartizione non calcolabile'
-  if (computation.openDebtCents === 0) return 'In pari'
-  return `Da pareggiare · ${formatEuro(computation.openDebtCents)}`
+  return computation.phrase.replace(/ €/g, '\u00a0€')
 }
 
 function badgeTone(computation: MonthComputation): string {

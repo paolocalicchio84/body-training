@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
-import { formatDateLong, formatMonthTitle, isMonthId } from '../dates.ts'
+import { currentMonthId, formatDateLong, formatMonthTitle, isMonthId } from '../dates.ts'
 import { formatEuro } from '../money.ts'
 import { PEOPLE, PERSON_IDS } from '../model.ts'
 import { useMonthData, useStore } from '../store.tsx'
@@ -28,15 +28,17 @@ export function Home() {
     return (
       <div className="stack">
         <OpenMonthCard monthId={monthId} onOpen={() => openMonth(monthId)} />
-        <section className="stack">
-          <h2>Oppure un altro mese</h2>
-          <MonthChooser
-            onChoose={async (next) => {
-              await openMonth(next)
-              navigate(`/mese/${next}`)
-            }}
-          />
-        </section>
+        {monthId === currentMonthId() ? null : (
+          <section className="stack">
+            <h2>Oppure un altro mese</h2>
+            <MonthChooser
+              onChoose={async (next) => {
+                await openMonth(next)
+                navigate(`/mese/${next}`)
+              }}
+            />
+          </section>
+        )}
       </div>
     )
   }
@@ -70,15 +72,18 @@ export function Home() {
               <p className="glance">
                 <EuroValue cents={person.balanceCents} />
               </p>
+              {person.saved ? null : <p className="missing">Manca il reddito</p>}
               <p className="meta">Pagato {formatEuro(person.paidCents)}</p>
             </article>
           )
         })}
       </div>
 
-      <Link className="button secondary" to={`/mese/${monthId}/saldo`}>
-        Regola il saldo
-      </Link>
+      {missing.length === 0 ? (
+        <Link className="button secondary" to={`/mese/${monthId}/saldo`}>
+          Regola il saldo
+        </Link>
+      ) : null}
 
       <section className="stack">
         <div className="section-title">
