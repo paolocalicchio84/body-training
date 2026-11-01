@@ -1,3 +1,4 @@
+# Sito dedicato alla PWA in spese/. Non usa la root del repo né pc-personaltrainer.
 [build]
   command = "npm run build"
   publish = "dist"
