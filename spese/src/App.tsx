@@ -80,6 +80,14 @@ function Shell() {
               ← Home
             </Link>
           )}
+          <NavLink className="gear" to="/categorie" end aria-label="Categorie">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.61l-1.92-3.32a.5.5 0 0 0-.59-.22l-2.39.96a7.2 7.2 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.48-.41h-3.84a.5.5 0 0 0-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.5.5 0 0 0-.59.22L2.74 8.87a.5.5 0 0 0 .12.61l2.03 1.58c-.05.31-.08.63-.08.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.5.5 0 0 0-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2z"
+              />
+            </svg>
+          </NavLink>
         </div>
         {expenseRoute ? null : (
           <div className="who">
@@ -105,16 +113,13 @@ function Shell() {
           <NavLink to={`${monthPath}/redditi`} end>
             Redditi
           </NavLink>
-          <NavLink to="/storico" end>
-            Storico
-          </NavLink>
           <button type="button" className="dock-plus" aria-label="Aggiungi una spesa" onClick={() => void addExpense()}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path fill="currentColor" d="M10 3.2h4V10h6.8v4H14v6.8h-4V14H3.2v-4H10V3.2z" />
             </svg>
           </button>
-          <NavLink to="/categorie" end>
-            Categorie
+          <NavLink to="/storico" end>
+            Storico
           </NavLink>
         </nav>
       </div>

@@ -94,6 +94,27 @@ button, a { -webkit-tap-highlight-color: transparent; }
   letter-spacing: -0.03em;
 }
 
+.gear {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--sage);
+  text-decoration: none;
+}
+
+.gear svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+.gear[aria-current="page"] {
+  background: var(--sage-soft);
+}
+
 .who { display: grid; gap: 6px; }
 
 .who-label {
@@ -581,10 +602,10 @@ input::placeholder { color: var(--sand-deep); }
 
 .dock-menu {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 78px minmax(0, 2.06fr);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: 5px;
-  padding: 5px;
+  gap: 10px;
+  padding: 6px;
   border-radius: 18px;
   background: var(--sand);
 }
@@ -593,19 +614,15 @@ input::placeholder { color: var(--sand-deep); }
   display: flex;
   align-items: center;
   justify-content: center;
-  justify-self: center;
-  width: max-content;
-  max-width: 100%;
   min-height: 52px;
-  padding: 10px 8px;
-  border-radius: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
   background: var(--sheet);
   color: #140e10;
   text-align: center;
   text-decoration: none;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  white-space: nowrap;
 }
 
 .dock-menu a[aria-current="page"] {
@@ -617,9 +634,9 @@ input::placeholder { color: var(--sand-deep); }
   justify-self: center;
   display: grid;
   place-items: center;
-  width: 78px;
-  height: 78px;
-  margin: -8px 0;
+  width: 72px;
+  height: 72px;
+  margin: 0;
   padding: 0;
   border: 4px solid var(--sheet);
   border-radius: 50%;
