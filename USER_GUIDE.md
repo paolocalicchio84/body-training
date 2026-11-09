@@ -2,7 +2,7 @@
 
 Companion benessere personale AI (nutrizione + allenamento). Traccia alimentazione, schede, sonno, misure; l'AI analizza lo storico e suggerisce aggiustamenti basati su target, regole e piano alimentare.
 
-**Live:** https://pc-personaltrainer.netlify.app
+**Live:** https://paolo-personaltrainer.netlify.app
 
 ---
 
@@ -31,7 +31,7 @@ Per la singola sezione c'è il pulsante **?** accanto all'etichetta in cima a og
 
 ### 1. Registrazione e primo accesso
 
-1. Vai su https://pc-personaltrainer.netlify.app
+1. Vai su https://paolo-personaltrainer.netlify.app
 2. **Registrati** con email + password. Se la conferma email è attiva su Supabase, controlla la casella.
 3. Accedi. Se dimentichi la password: **Password dimenticata?** su Sign-in (link email Supabase) oppure reset da Supabase → Authentication → Users.
 

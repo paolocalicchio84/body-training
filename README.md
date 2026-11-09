@@ -3,7 +3,7 @@
 Fork personale di Paolo: https://github.com/paolocalicchio84/body-training  
 Upstream originale: https://github.com/daniele-pisciottano/maddaniello-physiquee
 
-Live: https://pc-personaltrainer.netlify.app
+Live: https://paolo-personaltrainer.netlify.app
 
 Companion benessere personale — PWA web-only.
 
@@ -61,9 +61,11 @@ Apri http://localhost:5173 → ti reindirizza a `/auth/signin`. Clicca "Registra
 5. Deploy
 
 ### Auth redirect URL in Supabase
-In Supabase → Authentication → URL Configuration, aggiungi:
-- Site URL: `https://<tuo-sito>.netlify.app`
-- Redirect URLs: `https://<tuo-sito>.netlify.app/**`
+In Supabase → Authentication → URL Configuration:
+- Site URL: `https://paolo-personaltrainer.netlify.app`
+- Redirect URLs: `https://paolo-personaltrainer.netlify.app/**` e, per lo sviluppo locale, `http://localhost:5173/**`
+
+Il login con email e password non usa queste URL. Servono per conferma email, recupero password e magic link. Il vecchio sito `https://pc-personaltrainer.netlify.app` risponde 404: se resta come Site URL, i link nelle email finiscono lì.
 
 ---
 
