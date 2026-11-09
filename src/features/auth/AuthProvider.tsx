@@ -22,7 +22,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 
 function resetRedirectTo(): string {
-  if (typeof window === 'undefined') return 'https://pc-personaltrainer.netlify.app/auth/reset-password'
+  if (typeof window === 'undefined') return 'https://paolo-personaltrainer.netlify.app/auth/reset-password'
   return `${window.location.origin}/auth/reset-password`
 }
 
